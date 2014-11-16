@@ -1,0 +1,684 @@
+#!/usr/bin/env node
+(function() {
+  var Magister, MagisterSchool, all, askSchool, askUser, colors, commands, days, fs, magisterJs, main, moment, readline, rl, shortDays, showHelp, storage, userInfo, val, _;
+
+  readline = require('readline');
+
+  _ = require("lodash");
+
+  storage = require('node-persist');
+
+  moment = require('moment');
+
+  colors = require('colors');
+
+  fs = require('fs');
+
+  magisterJs = require("magister.js");
+
+  Magister = magisterJs.Magister;
+
+  MagisterSchool = magisterJs.MagisterSchool;
+
+  days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+  shortDays = ["zo", "ma", "di", "wo", "do", "vr", "za"];
+
+  all = days.concat(shortDays);
+
+  showHelp = function() {
+    var cent, command, key, param, repeat, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    repeat = function(org, length) {
+      var i, res, _i;
+      if (length == null) {
+        length = process.stdout.columns;
+      }
+      res = "";
+      for (i = _i = 0; 0 <= length ? _i < length : _i > length; i = 0 <= length ? ++_i : --_i) {
+        res += org;
+      }
+      return res;
+    };
+    cent = function(s, xAxis) {
+      if (xAxis == null) {
+        xAxis = process.stdout.columnse;
+      }
+      return repeat(" ", (xAxis / 2) - s.length / 2) + s + repeat(" ", (xAxis / 2) - s.length / 2);
+    };
+    console.log(repeat("-"));
+    console.log(cent("MahGister").bold.red);
+    console.log(cent("(c) 2014 Lieuwe Rooijakkers"));
+    console.log(repeat("-"));
+    _ref = _.keys(commands);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      key = _ref[_i];
+      command = commands[key];
+      console.log(key.bold + (": " + command.description));
+      _ref2 = (_ref1 = command.params) != null ? _ref1 : [];
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        param = _ref2[_j];
+        console.log("");
+        console.log("    " + param.name.underline + (" [" + param.type + "]: " + param.description) + ((param.optional == null) || param.optional === false ? "" : param.optional === true ? " (optional)".red : (" (default: " + param.optional + ")").red));
+        if (param.example != null) {
+          console.log("    Example".bold + (": " + param.example));
+        }
+      }
+      console.log(repeat("-"));
+    }
+    return rl.prompt();
+  };
+
+  commands = {
+    "help": {
+      description: "What do you expect?"
+    },
+    "who": {
+      description: "Returns the name of the current logged in user."
+    },
+    "clear": {
+      description: "Clears the screen."
+    },
+    "appointments": {
+      description: "Shows a list of the appointments of the user.",
+      params: [
+        {
+          name: "days",
+          type: "Number",
+          description: "How many days to add to the current day.",
+          example: "appointments 2".cyan + " # Gets appointments of the day after tommorow.",
+          optional: 0
+        }, {
+          name: "appointmentId",
+          type: "Number",
+          description: "The index of the appointment to show details about.",
+          example: "appointments 2 1".cyan + " # Shows the details of the second appointment of the appointments of the day after tommorow.",
+          optional: true
+        }
+      ]
+    },
+    "homework": {
+      description: "Returns the homework of the current user."
+    },
+    "tests": {
+      description: "Returns the tests of the current user."
+    },
+    "messages": {
+      description: "Goes into messages mode and shows a list of messages."
+    },
+    "list": {
+      description: "Requires you to be in messages mode. This will show the current fetched messages."
+    },
+    "download": {
+      description: "Requires you to be in messages mode. This will download an attachment.",
+      params: [
+        {
+          name: "messageId",
+          type: "Number",
+          description: "The ID of the message to download the attachment from. Fallsback to the previous message if none is given.",
+          optional: true
+        }, {
+          name: "attachmentId",
+          type: "Number",
+          description: "The index of the attachment to download.",
+          optional: false
+        }
+      ]
+    },
+    "next": {
+      description: "Requires you to be in messages mode. Fetches the next x amount of messages. If no amount is given it will use 10."
+    },
+    "delete": {
+      description: "Requires you to be in messages mode. Moves a message to the bin.",
+      params: [
+        {
+          name: "messageId",
+          type: "Number",
+          description: "The ID of the message to remove. Fallsback to the previous message if none is given.",
+          optional: true
+        }
+      ]
+    },
+    "done": {
+      description: "Marks the given appointment as done.",
+      params: [
+        {
+          name: "days",
+          type: "Number",
+          description: "How many days to add to the current day.",
+          optional: false
+        }, {
+          name: "appointmentId",
+          type: "Number",
+          description: "The index of the appointment to mark as done.",
+          optional: false
+        }
+      ]
+    },
+    "exit": {
+      description: "Exists MahGister."
+    }
+  };
+
+  rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    completer: function(s) {
+      var filtered;
+      filtered = _.keys(commands).filter(function(k) {
+        return k.indexOf(s.toLowerCase().split(" ")[0]) === 0;
+      }).map(function(c) {
+        return c + " ";
+      });
+      return [(filtered.length !== 0 ? filtered : _.keys(commands)), s];
+    }
+  });
+
+  storage.initSync({
+    dir: "" + (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister"
+  });
+
+  fs.exists('./attachments', function(r) {
+    if (!r) {
+      return fs.mkdir("attachments");
+    }
+  });
+
+  rl.on("close", function() {
+    return process.exit(0);
+  });
+
+  main = function(val, magister) {
+    console.log('\033[2J\033[1;0H');
+    if (magister == null) {
+      magister = new Magister(val.school, val.userName, val.password);
+    }
+    return magister.ready(function(m) {
+      var homeworkResults, lastMessage;
+      homeworkResults = null;
+      lastMessage = null;
+      console.log("Welcome, " + (m.profileInfo().firstName()));
+      rl.prompt();
+      return rl.on("line", function(l) {
+        var appointment, date, filterAndShow, folder, id, inf, limit, params, s, splitted, x;
+        splitted = l.trim().split(" ");
+        params = splitted.slice(1);
+        switch (splitted[0]) {
+          case "who":
+            if (m.profileInfo().namePrefix() != null) {
+              console.log("" + (m.profileInfo().firstName()) + " " + (m.profileInfo().namePrefix()) + " " + (m.profileInfo().lastName()));
+            } else {
+              console.log("" + (m.profileInfo().firstName()) + " " + (m.profileInfo().lastName()));
+            }
+            return rl.prompt();
+          case "clear":
+            console.log('\033[2J\033[1;0H');
+            return rl.prompt();
+          case "appointments":
+            inf = params[0];
+            if (inf == null) {
+              inf = 0;
+            }
+            id = params[1];
+            date = ((function() {
+              var _ref;
+              if ((val = (_ref = /^-?\d+$/.exec(inf)) != null ? _ref[0] : void 0) != null) {
+                return new moment().add(Number(val), "days");
+              } else if (_.contains(all, inf.toLowerCase())) {
+                x = moment();
+                while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
+                  x.add(1, "days");
+                }
+                return x;
+              } else if (inf[0] === "-" && _.contains(all, inf.slice(1).toLowerCase())) {
+                x = moment();
+                while (days[x.weekday()] !== inf.slice(1).toLowerCase() && shortDays[x.weekday()] !== inf.slice(1).toLowerCase()) {
+                  x.add(-1, "days");
+                }
+                return x;
+              } else {
+                return moment(inf);
+              }
+            })()).toDate();
+            return m.appointments(date, false, function(e, r) {
+              var appointment, i, s, _fn, _i, _len;
+              if (e != null) {
+                console.log("Error: " + e.message);
+              } else {
+                if (id != null) {
+                  appointment = r[Number(id)];
+                  if (!appointment) {
+                    console.log("Appointment #" + id + " not found on " + days[moment(date).weekday()] + ".");
+                    rl.prompt();
+                    return;
+                  }
+                  s = "";
+                  s += days[moment(appointment.begin()).weekday()] + "    ";
+                  if ((val = appointment.classes()[0]) != null) {
+                    s += val + " ";
+                    if (appointment.location() != null) {
+                      s += "" + (appointment.location()) + "    ";
+                    }
+                  } else {
+                    s += appointment.description() + "    ";
+                  }
+                  if (appointment.scrapped()) {
+                    s += "SCRAPPED".cyan;
+                  } else {
+                    s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+                  }
+                  if (appointment.isDone()) {
+                    s = s.dim;
+                  }
+                  console.log(((function() {
+                    switch (appointment.infoType()) {
+                      case 1:
+                        return s.blue;
+                      case 2:
+                      case 3:
+                      case 4:
+                      case 5:
+                        return s.red;
+                      default:
+                        return s;
+                    }
+                  })()));
+                } else {
+                  _fn = function(appointment) {
+                    var addZero;
+                    addZero = function(s) {
+                      if (r.length > 10 && ("" + s).length !== 2) {
+                        return "0" + s;
+                      } else {
+                        return s;
+                      }
+                    };
+                    s = "" + (addZero(i)) + ": ";
+                    if (appointment.beginBySchoolHour() != null) {
+                      s += "[" + (appointment.beginBySchoolHour()) + "] ";
+                    } else {
+                      s += "[ ] ";
+                    }
+                    if (appointment.fullDay()) {
+                      s += "   Full Day  ";
+                      s += "	";
+                    } else {
+                      s += "" + (moment(appointment.begin()).format("HH:mm")) + " - ";
+                      s += "" + (moment(appointment.end()).format("HH:mm")) + "	";
+                    }
+                    s += appointment.description();
+                    if (appointment.isDone()) {
+                      s = s.dim;
+                    }
+                    return console.log(((function() {
+                      switch (appointment.infoType()) {
+                        case 1:
+                          return s.blue;
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                          return s.red;
+                        default:
+                          return s;
+                      }
+                    })()));
+                  };
+                  for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
+                    appointment = r[i];
+                    _fn(appointment);
+                  }
+                }
+              }
+              return rl.prompt();
+            });
+          case "homework":
+            if (params.length === 0) {
+              filterAndShow = function(appointments) {
+                var filtered, s, weekday, _i, _results;
+                appointments = _.filter(appointments, function(a) {
+                  return !a.isDone() && !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
+                });
+                _results = [];
+                for (weekday = _i = 0; _i <= 6; weekday = ++_i) {
+                  filtered = _.filter(appointments, function(a) {
+                    return moment(a.begin()).weekday() === weekday;
+                  });
+                  if (filtered.length === 0) {
+                    continue;
+                  }
+                  s = "";
+                  s += days[weekday] + ": ";
+                  s += filtered.map(function(a) {
+                    return a.classes()[0];
+                  }).join(", ");
+                  if (_.any(filtered, function(a) {
+                    return a.infoType() > 1;
+                  })) {
+                    _results.push(console.log(s.red));
+                  } else {
+                    _results.push(console.log(s));
+                  }
+                }
+                return _results;
+              };
+              if (homeworkResults != null) {
+                filterAndShow(homeworkResults);
+                return rl.prompt();
+              } else {
+                return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
+                  if (e != null) {
+                    console.log("Error: " + e.message);
+                  } else {
+                    filterAndShow(r);
+                    homeworkResults = _.filter(r, function(a) {
+                      return !a.isDone() && !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
+                    });
+                  }
+                  return rl.prompt();
+                });
+              }
+            } else if (homeworkResults != null) {
+              appointment = homeworkResults[Number(params[0])];
+              s = "";
+              s += days[moment(appointment.begin()).weekday()] + "    ";
+              s += appointment.classes()[0] + "    ";
+              s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+              if (appointment.isDone()) {
+                s = s.dim;
+              }
+              console.log(appointment.infoType() > 1 ? s.red : s);
+              return rl.prompt();
+            } else {
+              return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
+                if (e != null) {
+                  return console.log("Error: " + e.message);
+                } else {
+                  homeworkResults = _.filter(r, function(a) {
+                    return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
+                  });
+                  appointment = homeworkResults[Number(params[0])];
+                  s = "";
+                  s += days[moment(appointment.begin()).weekday()] + "    ";
+                  s += appointment.classes()[0] + "    ";
+                  s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+                  if (appointment.isDone()) {
+                    s = s.dim;
+                  }
+                  console.log(appointment.infoType() > 1 ? s.red : s);
+                  return rl.prompt();
+                }
+              });
+            }
+            break;
+          case "tests":
+            filterAndShow = function(appointments) {
+              var first, _i, _len, _results;
+              appointments = _.filter(appointments, function(a) {
+                return !a.fullDay() && (a.content() != null) && a.infoType() > 1;
+              });
+              first = true;
+              _results = [];
+              for (_i = 0, _len = appointments.length; _i < _len; _i++) {
+                appointment = appointments[_i];
+                _results.push((function(appointment) {
+                  s = "";
+                  s += days[moment(appointment.begin()).weekday()] + ": ";
+                  s += appointment.classes()[0] + "    ";
+                  s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+                  if (appointment.isDone()) {
+                    s = s.dim;
+                  }
+                  if (!first) {
+                    console.log("--------------------");
+                  }
+                  console.log(s.red);
+                  return first = false;
+                })(appointment));
+              }
+              return _results;
+            };
+            if (homeworkResults != null) {
+              filterAndShow(homeworkResults);
+              return rl.prompt();
+            } else {
+              return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
+                if (e != null) {
+                  console.log("Error: " + e.message);
+                } else {
+                  filterAndShow(r);
+                  homeworkResults = _.filter(r, function(a) {
+                    return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
+                  });
+                }
+                return rl.prompt();
+              });
+            }
+            break;
+          case "messages":
+            folder = m.inbox();
+            if (params[0] != null) {
+              limit = Number(params[0]);
+            }
+            if (_.isNaN(limit)) {
+              folder = m.messageFolders(params[0])[0];
+              limit = params[1] != null ? Number(params[1]) : null;
+            }
+            return folder.messages(limit, function(e, r) {
+              var ask, list, save;
+              if (e != null) {
+                return console.log("Error: " + e.message);
+              } else {
+                save = function(attachment) {
+                  return attachment.download(false, function(e, r) {
+                    if (e != null) {
+                      console.log("Error: " + e.message);
+                    } else {
+                      rl.write(null, {
+                        ctrl: true,
+                        name: 'u'
+                      });
+                      console.log("Downloaded " + (attachment.name()));
+                      fs.writeFile("./attachments/" + (attachment.name()), r, function(e) {
+                        if (e != null) {
+                          throw e;
+                        }
+                      });
+                    }
+                    return ask();
+                  });
+                };
+                list = function() {
+                  var i, msg, _i, _len, _results;
+                  _results = [];
+                  for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
+                    msg = r[i];
+                    _results.push((function(msg) {
+                      s = "[" + i + "] ";
+                      s += "" + (msg.sender().description()) + " ";
+                      s += msg.subject();
+                      return console.log(s);
+                    })(msg));
+                  }
+                  return _results;
+                };
+                ask = function() {
+                  return rl.question("msg> ", function(id) {
+                    var amount, attachments, mail, msg, recipients, sendDate;
+                    if ((val = id.trim()).length === 0) {
+                      rl.prompt();
+                      return;
+                    }
+                    if (val.toLowerCase() === "list") {
+                      list();
+                      ask();
+                      return;
+                    }
+                    if (val.toLowerCase().indexOf("next") !== -1 && (amount = Number(val.split(" ").slice(1))) > 0) {
+                      m.inbox().messages(amount, "skip " + limit, function(err, res) {
+                        r.concat(res);
+                        list();
+                        return ask();
+                      });
+                      return;
+                    }
+                    if (val.toLowerCase() === "exit") {
+                      rl.close();
+                      return;
+                    }
+                    splitted = val.toLowerCase().split(" ");
+                    if (splitted.length === 2 && splitted[0].toLowerCase() === "download") {
+                      if (lastMessage != null) {
+                        save(lastMessage.attachments()[Number(splitted[1])]);
+                      } else {
+                        console.log("No message provided and none read. Read a message or provide it using download <message id> <attachment id>");
+                      }
+                      ask();
+                      return;
+                    } else if (splitted.length === 3 && splitted[0].toLowerCase() === "download") {
+                      save(r[Number(splitted[1])].attachments()[Number(splitted[2])]);
+                      ask();
+                      return;
+                    }
+                    if (val.toLowerCase() === "delete") {
+                      if (lastMessage != null) {
+                        (msg = lastMessage).move(m.bin());
+                        _.remove(r, msg);
+                      } else {
+                        console.log("No message provided and none read. Read a message or provide it using delete <message id> <attachment id>");
+                      }
+                      ask();
+                      return;
+                    } else if (splitted.length === 2 && splitted[0].toLowerCase() === "delete") {
+                      (msg = r[Number(splitted[1])]).move(m.bin());
+                      _.remove(r, msg);
+                      ask();
+                      return;
+                    } else if (_.isNaN(Number(val))) {
+                      console.log("Expected command or number.");
+                      ask();
+                      return;
+                    }
+                    mail = r[Number(val)];
+                    sendDate = moment(mail.sendDate());
+                    recipients = mail.recipients().slice(0).map(function(p) {
+                      return p.description();
+                    }).join(", ");
+                    attachments = mail.attachments().map(function(a) {
+                      return a.name();
+                    }).join(", ");
+                    console.log("");
+                    console.log(("From: " + (mail.sender().description()) + "\n") + ("Sent: " + days[sendDate.weekday()] + " " + (sendDate.format('DD-M-YYYY HH:mm:ss')) + "\n") + ("To: " + recipients + "\n") + ("Subject: " + (mail.subject()) + "\n") + ("Attachments: " + attachments + "\n\n") + ("\"" + (mail.body()) + "\""));
+                    lastMessage = mail;
+                    return ask();
+                  });
+                };
+                list();
+                return ask();
+              }
+            });
+          case "done":
+            if (params.length < 2) {
+              console.log("Use done <day> <appointmentId>");
+              rl.prompt();
+              return;
+            }
+            inf = params[0];
+            date = ((function() {
+              var _ref;
+              if ((val = (_ref = /^-?\d+$/.exec(inf)) != null ? _ref[0] : void 0) != null) {
+                return new moment().add(val, "days");
+              } else if (_.contains(all, inf.toLowerCase())) {
+                x = moment();
+                while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
+                  x.add(1, "days");
+                }
+                return x;
+              } else if (inf[0] === "-" && _.contains(all, inf.slice(1).toLowerCase())) {
+                x = moment();
+                while (days[x.weekday()] !== inf.slice(1).toLowerCase() && shortDays[x.weekday()] !== inf.slice(1).toLowerCase()) {
+                  x.add(-1, "days");
+                }
+                return x;
+              } else {
+                return moment(inf);
+              }
+            })()).toDate();
+            return m.appointments(date, false, function(e, r) {
+              if (e != null) {
+                return console.log("Error: " + e.message);
+              } else {
+                appointment = r[Number(params[1])];
+                if (appointment != null) {
+                  appointment.isDone(true);
+                } else {
+                  console.log("Appointment #" + id + " not found on " + days[moment(date).weekday()] + ".");
+                }
+                return rl.prompt();
+              }
+            });
+          case "exit":
+            return rl.close();
+          case "":
+            return rl.prompt();
+          default:
+            return showHelp();
+        }
+      });
+    });
+  };
+
+  if ((val = storage.getItem("user")) != null) {
+    main(val);
+  } else {
+    userInfo = {
+      school: null,
+      userName: null,
+      password: null
+    };
+    askSchool = function(cb) {
+      return rl.question("What's your school name? ", function(a) {
+        return MagisterSchool.getSchools(a, function(e, r) {
+          var i, school, _i, _len, _results;
+          if ((e != null) || r.length === 0) {
+            console.log("No schools found with query: " + a);
+            return askSchool(cb);
+          } else if (r.length > 1) {
+            _results = [];
+            for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
+              school = r[i];
+              console.log("[" + i + "] " + school.name);
+              _results.push(rl.question("What's your school? ", function(a) {
+                userInfo.school = r[Number(a)];
+                return cb();
+              }));
+            }
+            return _results;
+          } else {
+            userInfo.school = r[0];
+            return cb();
+          }
+        });
+      });
+    };
+    askUser = function() {
+      return rl.question("What's your username? ", function(name) {
+        return rl.question("What's your password? ", function(pass) {
+          var x;
+          x = setTimeout((function() {
+            console.log("Wrong username and/or password. Or other error.");
+            return askUser();
+          }), 5000);
+          return new Magister(userInfo.school, name, pass).ready(function(m) {
+            userInfo.userName = name;
+            userInfo.password = pass;
+            clearTimeout(x);
+            storage.setItem("user", userInfo);
+            return main(userInfo, m);
+          });
+        });
+      });
+    };
+    askSchool(askUser);
+  }
+
+}).call(this);
