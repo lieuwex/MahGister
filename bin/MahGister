@@ -26,8 +26,11 @@
 
   all = days.concat(shortDays);
 
-  showHelp = function() {
+  showHelp = function(exit) {
     var cent, command, key, param, repeat, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    if (exit == null) {
+      exit = false;
+    }
     repeat = function(org, length) {
       var i, res, _i;
       if (length == null) {
@@ -65,7 +68,11 @@
       }
       console.log(repeat("-"));
     }
-    return rl.prompt();
+    if (exit) {
+      return process.exit(0);
+    } else {
+      return rl.prompt();
+    }
   };
 
   commands = {
@@ -186,6 +193,10 @@
   rl.on("close", function() {
     return process.exit(0);
   });
+
+  if (_.contains(["--help", "-h"], _.last(process.argv).toLowerCase())) {
+    showHelp(true);
+  }
 
   main = function(val, magister) {
     console.log('\033[2J\033[1;0H');

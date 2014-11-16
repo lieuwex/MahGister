@@ -33,7 +33,7 @@ shortDays = [
 
 all = days.concat shortDays
 
-showHelp = ->
+showHelp = (exit = false) ->
 	repeat = (org, length = process.stdout.columns) ->
 		res = ""
 		res += org for i in [0...length]
@@ -59,7 +59,10 @@ showHelp = ->
 		
 		console.log repeat "-"
 
-	rl.prompt()
+	if exit
+		process.exit 0
+	else
+		rl.prompt()
 
 commands =
 	"help":
@@ -155,6 +158,8 @@ storage.initSync
 fs.exists './attachments', (r) -> fs.mkdir("attachments") unless r
 
 rl.on "close", -> process.exit 0
+
+if _.contains ["--help", "-h"], _.last(process.argv).toLowerCase() then showHelp yes
 
 main = (val, magister) ->
 	`console.log('\033[2J\033[1;0H')`
