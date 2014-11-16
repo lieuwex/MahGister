@@ -1,7 +1,20 @@
 {
-  "name": "MahGister",
+  "name": "mahgister",
   "version": "1.0.0",
   "description": "A CLI to Magister.",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/lieuwex/MahGister.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lieuwex/MahGister/issues"
+  },
+  "licenses": [
+    {
+      "type": "GPLv3",
+      "url": "http://github.com/lieuwex/MahGister/blob/master/LICENSE"
+    }
+  ],
   "main": "./bin/MahGister",
   "scripts": {
     "prepublish": "grunt",
