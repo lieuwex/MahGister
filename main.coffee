@@ -39,7 +39,7 @@ showHelp = (exit = false) ->
 		res += org for i in [0...length]
 		return res
 
-	cent = (s, xAxis = process.stdout.columnse) -> repeat(" ", (xAxis / 2) - s.length / 2) + s + repeat(" ", (xAxis / 2) - s.length / 2)
+	cent = (s, xAxis = process.stdout.columns) -> repeat(" ", (xAxis / 2) - s.length / 2) + s + repeat(" ", (xAxis / 2) - s.length / 2)
 
 	console.log repeat "-"
 	console.log cent("MahGister").bold.red
@@ -95,6 +95,16 @@ commands =
 		description: "Returns the tests of the current user."
 	"messages":
 		description: "Goes into messages mode and shows a list of messages."
+		params: [
+			{
+				name: "inbox"
+				type: "String"
+				description: "The name of the inbox to open."
+				optional: "Postvak In"
+			}
+		]
+	"messages new":
+		description: "Opens the dialog to create a new message."
 	"list":
 		description: "Requires you to be in messages mode. This will show the current fetched messages."
 	"download":
@@ -359,8 +369,30 @@ main = (val, magister) ->
 
 					if params[0]? then limit = Number(params[0])
 					if _.isNaN(limit)
-						folder = m.messageFolders(params[0])[0]
-						limit = if params[1]? then Number(params[1]) else null
+						if params[0].toLowerCase() is "new"
+							rl.question "to: ", (to) ->
+								names = (x.trim() for x in to.split(","))
+
+								rl.question "subject: ", (subject) ->
+									body = ""
+									lineNumber = 0
+									z = ->
+										rl.question "[#{lineNumber}]> ", (line) ->
+											line = line.trim()
+											if line.length is 0
+												m.composeAndSendMessage subject.trim(), body.trim(), names
+												console.log "Sent message to #{names.join(', ')}"
+												rl.prompt()
+												return
+											body += line + "\n"
+											lineNumber++
+											z()
+
+									z()
+							return	
+						else
+							folder = m.messageFolders(params[0])[0]
+							limit = if params[1]? then Number(params[1]) else null
 
 					folder.messages limit, (e, r) ->
 						if e? then console.log "Error: #{e.message}"

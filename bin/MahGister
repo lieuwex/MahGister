@@ -44,7 +44,7 @@
     };
     cent = function(s, xAxis) {
       if (xAxis == null) {
-        xAxis = process.stdout.columnse;
+        xAxis = process.stdout.columns;
       }
       return repeat(" ", (xAxis / 2) - s.length / 2) + s + repeat(" ", (xAxis / 2) - s.length / 2);
     };
@@ -110,7 +110,18 @@
       description: "Returns the tests of the current user."
     },
     "messages": {
-      description: "Goes into messages mode and shows a list of messages."
+      description: "Goes into messages mode and shows a list of messages.",
+      params: [
+        {
+          name: "inbox",
+          type: "String",
+          description: "The name of the inbox to open.",
+          optional: "Postvak In"
+        }
+      ]
+    },
+    "messages new": {
+      description: "Opens the dialog to create a new message."
     },
     "list": {
       description: "Requires you to be in messages mode. This will show the current fetched messages."
@@ -471,8 +482,45 @@
               limit = Number(params[0]);
             }
             if (_.isNaN(limit)) {
-              folder = m.messageFolders(params[0])[0];
-              limit = params[1] != null ? Number(params[1]) : null;
+              if (params[0].toLowerCase() === "new") {
+                rl.question("to: ", function(to) {
+                  var names;
+                  names = (function() {
+                    var _i, _len, _ref, _results;
+                    _ref = to.split(",");
+                    _results = [];
+                    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                      x = _ref[_i];
+                      _results.push(x.trim());
+                    }
+                    return _results;
+                  })();
+                  return rl.question("subject: ", function(subject) {
+                    var body, lineNumber, z;
+                    body = "";
+                    lineNumber = 0;
+                    z = function() {
+                      return rl.question("[" + lineNumber + "]> ", function(line) {
+                        line = line.trim();
+                        if (line.length === 0) {
+                          m.composeAndSendMessage(subject.trim(), body.trim(), names);
+                          console.log("Sent message to " + (names.join(', ')));
+                          rl.prompt();
+                          return;
+                        }
+                        body += line + "\n";
+                        lineNumber++;
+                        return z();
+                      });
+                    };
+                    return z();
+                  });
+                });
+                return;
+              } else {
+                folder = m.messageFolders(params[0])[0];
+                limit = params[1] != null ? Number(params[1]) : null;
+              }
             }
             return folder.messages(limit, function(e, r) {
               var ask, list, save;
