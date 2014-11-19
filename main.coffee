@@ -371,9 +371,15 @@ main = (val, magister) ->
 					if _.isNaN(limit)
 						if params[0].toLowerCase() is "new"
 							rl.question "to: ", (to) ->
+								if to.trim() is ""
+									rl.prompt()
+									return
 								names = (x.trim() for x in to.split(","))
 
 								rl.question "subject: ", (subject) ->
+									if subject.trim() is ""
+										rl.prompt()
+										return
 									body = ""
 									lineNumber = 0
 									z = ->

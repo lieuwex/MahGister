@@ -485,6 +485,10 @@
               if (params[0].toLowerCase() === "new") {
                 rl.question("to: ", function(to) {
                   var names;
+                  if (to.trim() === "") {
+                    rl.prompt();
+                    return;
+                  }
                   names = (function() {
                     var _i, _len, _ref, _results;
                     _ref = to.split(",");
@@ -497,6 +501,10 @@
                   })();
                   return rl.question("subject: ", function(subject) {
                     var body, lineNumber, z;
+                    if (subject.trim() === "") {
+                      rl.prompt();
+                      return;
+                    }
                     body = "";
                     lineNumber = 0;
                     z = function() {
@@ -670,7 +678,7 @@
                 if (appointment != null) {
                   appointment.isDone(true);
                 } else {
-                  console.log("Appointment #" + id + " not found on " + days[moment(date).weekday()] + ".");
+                  console.log("Appointment #" + params[1] + " not found on " + days[moment(date).weekday()] + ".");
                 }
                 return rl.prompt();
               }
