@@ -528,7 +528,7 @@ main = (val, magister) ->
 							if appointment?
 								appointment.isDone yes
 							else
-								console.log "Appointment ##{id} not found on #{days[moment(date).weekday()]}."
+								console.log "Appointment ##{params[1]} not found on #{days[moment(date).weekday()]}."
 
 							rl.prompt()
 
