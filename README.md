@@ -1,4 +1,4 @@
-MahGister
+MahGister(7)
 =========
 
 A tiny CLI to Magister, using [Magister.js](http://simplygits.github.io/MagisterJS/).
