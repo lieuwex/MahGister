@@ -175,7 +175,12 @@ main = (val, magister) ->
 	`console.log('\033[2J\033[1;0H')`
 	magister ?= new Magister(val.school, val.userName, val.password)
 
-	magister.ready (m) ->
+	magister.ready (err) ->
+		if err?
+			console.err "Magister returned error while logging in."
+			process.exit 32
+
+		m = this
 		homeworkResults = null
 		lastMessage = null
 		console.log "Welcome, #{m.profileInfo().firstName()}"
