@@ -214,8 +214,13 @@
     if (magister == null) {
       magister = new Magister(val.school, val.userName, val.password);
     }
-    return magister.ready(function(m) {
-      var homeworkResults, lastMessage;
+    return magister.ready(function(err) {
+      var homeworkResults, lastMessage, m;
+      if (err != null) {
+        console.err("Magister returned error while logging in.");
+        process.exit(32);
+      }
+      m = this;
       homeworkResults = null;
       lastMessage = null;
       console.log("Welcome, " + (m.profileInfo().firstName()));
