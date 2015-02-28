@@ -56,7 +56,7 @@ showHelp = (exit = false) ->
 				else if param.optional is yes then " (optional)".red
 				else " (default: #{param.optional})".red
 			if param.example? then console.log "    Example".bold + ": #{param.example}"
-		
+
 		console.log repeat "-"
 
 	if exit
@@ -400,7 +400,7 @@ main = (val, magister) ->
 											z()
 
 									z()
-							return	
+							return
 						else
 							folder = m.messageFolders(params[0])[0]
 							limit = if params[1]? then Number(params[1]) else null
@@ -478,7 +478,7 @@ main = (val, magister) ->
 										_.remove r, msg
 										ask()
 										return
-										
+
 									else if _.isNaN((Number) val)
 										console.log "Expected command or number."
 										ask()
