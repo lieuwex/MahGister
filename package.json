@@ -1,6 +1,6 @@
 {
   "name": "mahgister",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A CLI to Magister.",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
   },
   "preferGlobal": "true",
   "bin": {
-    "MahGister": "bin/MahGister"
+    "mahgister": "bin/mahgister"
   },
   "author": "Lieuwe Rooijakkers <lieuwerooijakkers@gmail.com> (http://lieuwex.github.io/)",
   "license": "GPLv3",

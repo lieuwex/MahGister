@@ -6,12 +6,12 @@ module.exports = (grunt) ->
 		coffee:
 			compile:
 				files:
-						"bin/MahGister": [ "main.coffee" ]
+						"bin/mahgister": [ "main.coffee" ]
 
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 
 	grunt.registerTask "head", ->
-		grunt.file.write "bin/MahGister", "#!/usr/bin/env node\n" + grunt.file.read "bin/MahGister"
-		fs.chmodSync "bin/MahGister", "777"
+		grunt.file.write "bin/mahgister", "#!/usr/bin/env node\n" + grunt.file.read "bin/mahgister"
+		fs.chmodSync "bin/mahgister", "777"
 
 	grunt.registerTask "default", [ "coffee", "head" ]
