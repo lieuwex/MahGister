@@ -6,10 +6,13 @@ storage = require 'node-persist'
 moment = require 'moment'
 colors = require 'colors'
 fs = require 'fs'
+spawn = require("child_process").spawnSync
 
 magisterJs = require "magister.js"
 Magister = magisterJs.Magister
 MagisterSchool = magisterJs.MagisterSchool
+
+mahGisterDir = "#{process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.MahGister"
 
 days = [
 	"sunday"
@@ -165,7 +168,7 @@ rl = readline.createInterface
 		return [(if filtered.length isnt 0 then filtered else _.keys(commands)), s]
 
 storage.initSync
-	dir: "#{process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.MahGister"
+	dir: mahGisterDir
 
 fs.exists './attachments', (r) -> fs.mkdir("attachments") unless r
 
@@ -387,31 +390,28 @@ main = (val, magister) ->
 					if params[0]? then limit = Number(params[0])
 					if _.isNaN(limit)
 						if params[0].toLowerCase() is "new"
-							rl.question "to: ", (to) ->
-								if to.trim() is ""
-									rl.prompt()
-									return
-								names = (x.trim() for x in to.split(","))
+							editor = process.env.EDITOR ? "vi"
+							file = "#{mahGisterDir}/MESSAGE_EDIT"
+							fs.writeFileSync file, "to (seperator: ','): \nsubject: \n\n### Type body under this line###\n\n"
 
-								rl.question "subject: ", (subject) ->
-									if subject.trim() is ""
-										rl.prompt()
-										return
-									body = ""
-									lineNumber = 0
-									z = ->
-										rl.question "[#{lineNumber}]> ", (line) ->
-											line = line.trim()
-											if line.length is 0
-												m.composeAndSendMessage subject.trim(), body.trim(), names
-												console.log "Sent message to #{names.join(', ')}"
-												rl.prompt()
-												return
-											body += line + "\n"
-											lineNumber++
-											z()
+							resp = spawn editor, [file], stdio: "inherit"
+							if resp.status isnt 0 or resp.error?
+								console.log "Error while trying to spawn editor proccess, falling back to ol' VI."
+								resp = spawn "vi", [ file ], stdio: "inherit"
 
-									z()
+							data = _.reject fs.readFileSync(file, encoding: "utf8").split("\n"), (s) -> s.trim().length is 0 or s.indexOf("###") is 0
+
+							namesRaw = data[0].split(":")[2..].join ":"
+							names = (x.trim() for x in namesRaw.split ",")
+
+							subject = data[1].split(":")[1..].join ":"
+
+							body = data[2..].join "\n"
+
+							m.composeAndSendMessage subject.trim(), body.trim(), names
+							console.log "Sent message to #{names.join(', ')}."
+
+							rl.prompt()
 							return
 						else
 							folder = m.messageFolders(params[0])[0]
