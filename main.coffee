@@ -439,7 +439,9 @@ main = (val, magister) ->
 
 							ask = ->
 								rl.question "msg> ", (id) ->
-									if (val = id.trim()).length is 0
+									val = id.trim()
+
+									if val.length is 0
 										rl.prompt()
 										return
 
