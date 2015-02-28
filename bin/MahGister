@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 (function() {
-  var Magister, MagisterSchool, all, askSchool, askUser, colors, commands, days, fs, magisterJs, main, moment, readline, rl, shortDays, showHelp, storage, userInfo, val, _;
+  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, magisterJs, main, moment, readline, rl, shortDays, showHelp, storage, userInfo, val, _;
 
   readline = require('readline');
 
@@ -25,6 +25,10 @@
   shortDays = ["zo", "ma", "di", "wo", "do", "vr", "za"];
 
   all = days.concat(shortDays);
+
+  clearConsole = function() {
+    return console.log('\033[2J\033[1;0H');
+  };
 
   showHelp = function(exit) {
     var cent, command, key, param, repeat, _i, _j, _len, _len1, _ref, _ref1, _ref2;
@@ -210,7 +214,7 @@
   }
 
   main = function(val, magister) {
-    console.log('\033[2J\033[1;0H');
+    clearConsole();
     if (magister == null) {
       magister = new Magister(val.school, val.userName, val.password);
     }
@@ -238,7 +242,7 @@
             }
             return rl.prompt();
           case "clear":
-            console.log('\033[2J\033[1;0H');
+            clearConsole();
             return rl.prompt();
           case "appointments":
             inf = params[0];
@@ -272,7 +276,7 @@
                 console.log("Error: " + e.message);
               } else {
                 if (id != null) {
-                  appointment = r[Number(id)];
+                  appointment = r[+id];
                   if (!appointment) {
                     console.log("Appointment #" + id + " not found on " + days[moment(date).weekday()] + ".");
                     rl.prompt();
@@ -326,11 +330,9 @@
                       s += "[ ] ";
                     }
                     if (appointment.fullDay()) {
-                      s += "   Full Day  ";
-                      s += "	";
+                      s += "   Full Day  \t";
                     } else {
-                      s += "" + (moment(appointment.begin()).format("HH:mm")) + " - ";
-                      s += "" + (moment(appointment.end()).format("HH:mm")) + "	";
+                      s += "" + (moment(appointment.begin()).format("HH:mm")) + " - " + (moment(appointment.end()).format("HH:mm")) + "	";
                     }
                     s += appointment.description();
                     if (appointment.isDone()) {
@@ -405,7 +407,7 @@
                 });
               }
             } else if (homeworkResults != null) {
-              appointment = homeworkResults[Number(params[0])];
+              appointment = homeworkResults[+params[0]];
               s = "";
               s += days[moment(appointment.begin()).weekday()] + "    ";
               s += appointment.classes()[0] + "    ";
@@ -423,7 +425,7 @@
                   homeworkResults = _.filter(r, function(a) {
                     return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
                   });
-                  appointment = homeworkResults[Number(params[0])];
+                  appointment = homeworkResults[+params[0]];
                   s = "";
                   s += days[moment(appointment.begin()).weekday()] + "    ";
                   s += appointment.classes()[0] + "    ";
@@ -585,9 +587,9 @@
                       ask();
                       return;
                     }
-                    if (val.toLowerCase().indexOf("next") !== -1 && (amount = Number(val.split(" ").slice(1))) > 0) {
-                      m.inbox().messages(amount, "skip " + limit, function(err, res) {
-                        r.concat(res);
+                    if (val.toLowerCase().indexOf("next") !== -1 && (amount = +val.split(" ").slice(1)) > 0) {
+                      m.inbox().messages(amount, "skip " + limit, function(err, newMessages) {
+                        r = r.concat(newMessages != null ? newMessages : []);
                         list();
                         return ask();
                       });
@@ -600,14 +602,14 @@
                     splitted = val.toLowerCase().split(" ");
                     if (splitted.length === 2 && splitted[0].toLowerCase() === "download") {
                       if (lastMessage != null) {
-                        save(lastMessage.attachments()[Number(splitted[1])]);
+                        save(lastMessage.attachments()[+splitted[1]]);
                       } else {
                         console.log("No message provided and none read. Read a message or provide it using download <message id> <attachment id>");
                       }
                       ask();
                       return;
                     } else if (splitted.length === 3 && splitted[0].toLowerCase() === "download") {
-                      save(r[Number(splitted[1])].attachments()[Number(splitted[2])]);
+                      save(r[+splitted[1]].attachments()[+splitted[2]]);
                       ask();
                       return;
                     }
@@ -621,16 +623,25 @@
                       ask();
                       return;
                     } else if (splitted.length === 2 && splitted[0].toLowerCase() === "delete") {
-                      (msg = r[Number(splitted[1])]).move(m.bin());
+                      (msg = r[+splitted[1]]).move(m.bin());
                       _.remove(r, msg);
                       ask();
                       return;
-                    } else if (_.isNaN(Number(val))) {
-                      console.log("Expected command or number.");
+                    } else if (_.isNaN(+val)) {
+                      if (val.length === 0) {
+                        console.log("Expected command or number.");
+                      } else {
+                        console.log("Unknown command: " + val);
+                      }
                       ask();
                       return;
                     }
-                    mail = r[Number(val)];
+                    if (+val < 0 || +val >= r.length) {
+                      console.log("Given index (" + (+val) + ") out of bounds.");
+                      ask();
+                      return;
+                    }
+                    mail = r[+val];
                     sendDate = moment(mail.sendDate());
                     recipients = mail.recipients().slice(0).map(function(p) {
                       return p.description();
@@ -679,7 +690,7 @@
               if (e != null) {
                 return console.log("Error: " + e.message);
               } else {
-                appointment = r[Number(params[1])];
+                appointment = r[+params[1]];
                 if (appointment != null) {
                   appointment.isDone(true);
                 } else {
@@ -720,7 +731,7 @@
               school = r[i];
               console.log("[" + i + "] " + school.name);
               _results.push(rl.question("What's your school? ", function(a) {
-                userInfo.school = r[Number(a)];
+                userInfo.school = r[+a];
                 return cb();
               }));
             }
