@@ -264,11 +264,9 @@ main = (val, magister) ->
 									s += "[ ] "
 
 								if appointment.fullDay()
-									s += "   Full Day  "
-									s += "	"
+									s += "   Full Day  \t"
 								else
-									s += "#{moment(appointment.begin()).format("HH:mm")} - "
-									s += "#{moment(appointment.end()).format("HH:mm")}	"
+									s += "#{moment(appointment.begin()).format("HH:mm")} - #{moment(appointment.end()).format("HH:mm")}	"
 								s += appointment.description()
 
 								if appointment.isDone() then s = s.dim
