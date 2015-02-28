@@ -229,7 +229,7 @@ main = (val, magister) ->
 						if e? then console.log "Error: #{e.message}"
 						else
 							if id?
-								appointment = r[(Number) id]
+								appointment = r[+id]
 								unless appointment
 									console.log "Appointment ##{id} not found on #{days[moment(date).weekday()]}."
 									rl.prompt()
@@ -311,7 +311,7 @@ main = (val, magister) ->
 								rl.prompt()
 
 					else if homeworkResults?
-						appointment = homeworkResults[(Number) params[0]]
+						appointment = homeworkResults[+params[0]]
 
 						s = ""
 						s += days[moment(appointment.begin()).weekday()] + "    "
@@ -328,7 +328,7 @@ main = (val, magister) ->
 							if e? then console.log "Error: #{e.message}"
 							else
 								homeworkResults = _.filter(r, (a) -> not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
-								appointment = homeworkResults[(Number) params[0]]
+								appointment = homeworkResults[+params[0]]
 
 								s = ""
 								s += days[moment(appointment.begin()).weekday()] + "    "
@@ -436,7 +436,7 @@ main = (val, magister) ->
 										ask()
 										return
 
-									if val.toLowerCase().indexOf("next") isnt -1 and (amount = (Number) val.split(" ")[1..]) > 0
+									if val.toLowerCase().indexOf("next") isnt -1 and (amount = +val.split(" ")[1..]) > 0
 										m.inbox().messages amount, "skip #{limit}", (err, newMessages) ->
 											r = r.concat newMessages ? []
 											list()
@@ -451,7 +451,7 @@ main = (val, magister) ->
 									splitted = val.toLowerCase().split(" ")
 									if splitted.length is 2 and splitted[0].toLowerCase() is "download"
 										if lastMessage?
-											save lastMessage.attachments()[(Number) splitted[1]]
+											save lastMessage.attachments()[+splitted[1]]
 										else
 											console.log "No message provided and none read. Read a message or provide it using download <message id> <attachment id>"
 
@@ -459,7 +459,7 @@ main = (val, magister) ->
 										return
 
 									else if splitted.length is 3 and splitted[0].toLowerCase() is "download"
-										save r[(Number) splitted[1]].attachments()[(Number) splitted[2]]
+										save r[+splitted[1]].attachments()[+splitted[2]]
 										ask()
 										return
 
@@ -474,17 +474,17 @@ main = (val, magister) ->
 										return
 
 									else if splitted.length is 2 and splitted[0].toLowerCase() is "delete"
-										(msg = r[(Number) splitted[1]]).move m.bin()
+										(msg = r[+splitted[1]]).move m.bin()
 										_.remove r, msg
 										ask()
 										return
 
-									else if _.isNaN((Number) val)
+									else if _.isNaN(+val)
 										console.log "Expected command or number."
 										ask()
 										return
 
-									mail = r[(Number) val]
+									mail = r[+val]
 									sendDate = moment mail.sendDate()
 									recipients = mail.recipients()[..].map((p) -> p.description()).join ", "
 									attachments = mail.attachments().map((a) -> a.name()).join ", "
@@ -535,7 +535,7 @@ main = (val, magister) ->
 					m.appointments date, no, (e, r) ->
 						if e? then console.log "Error: #{e.message}"
 						else
-							appointment = r[(Number) params[1]]
+							appointment = r[+params[1]]
 							if appointment?
 								appointment.isDone yes
 							else
@@ -565,7 +565,7 @@ else
 				else if r.length > 1 then for school, i in r
 					console.log "[#{i}] #{school.name}"
 					rl.question "What's your school? ", (a) ->
-						userInfo.school = r[(Number) a]
+						userInfo.school = r[+a]
 						cb()
 				else
 					userInfo.school = r[0]
