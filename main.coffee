@@ -568,8 +568,8 @@ else
 				if e? or r.length is 0
 					console.log "No schools found with query: #{a}"
 					askSchool cb
-				else if r.length > 1 then for school, i in r
-					console.log "[#{i}] #{school.name}"
+				else if r.length > 1
+					console.log "[#{i}] #{school.name}" for school, i in r
 					rl.question "What's your school? ", (a) ->
 						userInfo.school = r[+a]
 						cb()

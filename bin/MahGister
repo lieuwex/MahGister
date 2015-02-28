@@ -721,21 +721,19 @@
     askSchool = function(cb) {
       return rl.question("What's your school name? ", function(a) {
         return MagisterSchool.getSchools(a, function(e, r) {
-          var i, school, _i, _len, _results;
+          var i, school, _i, _len;
           if ((e != null) || r.length === 0) {
             console.log("No schools found with query: " + a);
             return askSchool(cb);
           } else if (r.length > 1) {
-            _results = [];
             for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
               school = r[i];
               console.log("[" + i + "] " + school.name);
-              _results.push(rl.question("What's your school? ", function(a) {
-                userInfo.school = r[+a];
-                return cb();
-              }));
             }
-            return _results;
+            return rl.question("What's your school? ", function(a) {
+              userInfo.school = r[+a];
+              return cb();
+            });
           } else {
             userInfo.school = r[0];
             return cb();
