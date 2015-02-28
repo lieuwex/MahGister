@@ -310,8 +310,16 @@ main = (val, magister) ->
 
 								rl.prompt()
 
+					else if _.isNaN +params[0]
+						console.log "Use homework <index>"
+						rl.prompt()
+
 					else if homeworkResults?
 						appointment = homeworkResults[+params[0]]
+
+						unless appointment?
+							rl.prompt()
+							return
 
 						s = ""
 						s += days[moment(appointment.begin()).weekday()] + "    "
@@ -329,6 +337,10 @@ main = (val, magister) ->
 							else
 								homeworkResults = _.filter(r, (a) -> not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
 								appointment = homeworkResults[+params[0]]
+
+								unless appointment?
+									rl.prompt()
+									return
 
 								s = ""
 								s += days[moment(appointment.begin()).weekday()] + "    "
