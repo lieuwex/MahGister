@@ -437,8 +437,8 @@ main = (val, magister) ->
 										return
 
 									if val.toLowerCase().indexOf("next") isnt -1 and (amount = (Number) val.split(" ")[1..]) > 0
-										m.inbox().messages amount, "skip #{limit}", (err, res) ->
-											r.concat res
+										m.inbox().messages amount, "skip #{limit}", (err, newMessages) ->
+											r = r.concat newMessages ? []
 											list()
 											ask()
 
