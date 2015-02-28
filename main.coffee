@@ -212,7 +212,7 @@ main = (val, magister) ->
 					id = params[1]
 					date = (
 						if (val = /^-?\d+$/.exec(inf)?[0])?
-							new moment().add Number(val), "days"
+							new moment().add +val, "days"
 
 						else if _.contains all, inf.toLowerCase()
 							x = moment()
@@ -387,7 +387,7 @@ main = (val, magister) ->
 				when "messages"
 					folder = m.inbox() # Use inbox as default MessageFolder.
 
-					if params[0]? then limit = Number(params[0])
+					if params[0]? then limit = +params[0]
 					if _.isNaN(limit)
 						if params[0].toLowerCase() is "new"
 							editor = process.env.EDITOR ? "vi"
@@ -415,7 +415,7 @@ main = (val, magister) ->
 							return
 						else
 							folder = m.messageFolders(params[0])[0]
-							limit = if params[1]? then Number(params[1]) else null
+							limit = if params[1]? then +params[1] else null
 
 					folder.messages limit, (e, r) ->
 						if e? then console.log "Error: #{e.message}"
