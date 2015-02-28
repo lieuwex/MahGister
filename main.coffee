@@ -33,6 +33,8 @@ shortDays = [
 
 all = days.concat shortDays
 
+clearConsole = -> `console.log('\033[2J\033[1;0H')`
+
 showHelp = (exit = false) ->
 	repeat = (org, length = process.stdout.columns) ->
 		res = ""
@@ -172,7 +174,7 @@ rl.on "close", -> process.exit 0
 if _.contains ["--help", "-h"], _.last(process.argv).toLowerCase() then showHelp yes
 
 main = (val, magister) ->
-	`console.log('\033[2J\033[1;0H')`
+	clearConsole()
 	magister ?= new Magister(val.school, val.userName, val.password)
 
 	magister.ready (err) ->
@@ -198,7 +200,7 @@ main = (val, magister) ->
 					rl.prompt()
 
 				when "clear"
-					`console.log('\033[2J\033[1;0H')`
+					clearConsole()
 					rl.prompt()
 
 				when "appointments"
@@ -478,7 +480,13 @@ main = (val, magister) ->
 										return
 
 									else if _.isNaN(+val)
-										console.log "Expected command or number."
+										if val.length is 0 then console.log "Expected command or number."
+										else console.log "Unknown command: #{val}"
+										ask()
+										return
+
+									if +val < 0 or +val >= r.length
+										console.log "Given index (#{+val}) out of bounds."
 										ask()
 										return
 
