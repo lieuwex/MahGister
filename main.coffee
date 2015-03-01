@@ -399,7 +399,7 @@ main = (val, magister) ->
 								console.log "Error while trying to spawn editor proccess, falling back to ol' VI."
 								resp = spawn "vi", [ file ], stdio: "inherit"
 
-							data = _.reject fs.readFileSync(file, encoding: "utf8").split("\n"), (s) -> s.trim().length is 0 or s.indexOf("###") is 0
+							data = _.reject fs.readFileSync(file, encoding: "utf8").split("\n"), (s) -> s.indexOf("###") is 0
 
 							namesRaw = data[0].split(":")[2..].join ":"
 							names = (x.trim() for x in namesRaw.split ",")
