@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 (function() {
-  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, magisterJs, main, moment, readline, rl, shortDays, showHelp, storage, userInfo, val, _;
+  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, magisterJs, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _;
 
   readline = require('readline');
 
@@ -14,11 +14,15 @@
 
   fs = require('fs');
 
+  spawn = require("child_process").spawnSync;
+
   magisterJs = require("magister.js");
 
   Magister = magisterJs.Magister;
 
   MagisterSchool = magisterJs.MagisterSchool;
+
+  mahGisterDir = "" + (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister";
 
   days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
@@ -196,7 +200,7 @@
   });
 
   storage.initSync({
-    dir: "" + (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister"
+    dir: mahGisterDir
   });
 
   fs.exists('./attachments', function(r) {
@@ -230,7 +234,7 @@
       console.log("Welcome, " + (m.profileInfo().firstName()));
       rl.prompt();
       return rl.on("line", function(l) {
-        var appointment, date, filterAndShow, folder, id, inf, limit, params, s, splitted, x;
+        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, resp, s, splitted, subject, x, _ref;
         splitted = l.trim().split(" ");
         params = splitted.slice(1);
         switch (splitted[0]) {
@@ -253,7 +257,7 @@
             date = ((function() {
               var _ref;
               if ((val = (_ref = /^-?\d+$/.exec(inf)) != null ? _ref[0] : void 0) != null) {
-                return new moment().add(Number(val), "days");
+                return new moment().add(+val, "days");
               } else if (_.contains(all, inf.toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
@@ -406,8 +410,15 @@
                   return rl.prompt();
                 });
               }
+            } else if (_.isNaN(+params[0])) {
+              console.log("Use homework <index>");
+              return rl.prompt();
             } else if (homeworkResults != null) {
               appointment = homeworkResults[+params[0]];
+              if (appointment == null) {
+                rl.prompt();
+                return;
+              }
               s = "";
               s += days[moment(appointment.begin()).weekday()] + "    ";
               s += appointment.classes()[0] + "    ";
@@ -426,6 +437,10 @@
                     return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
                   });
                   appointment = homeworkResults[+params[0]];
+                  if (appointment == null) {
+                    rl.prompt();
+                    return;
+                  }
                   s = "";
                   s += days[moment(appointment.begin()).weekday()] + "    ";
                   s += appointment.classes()[0] + "    ";
@@ -486,55 +501,47 @@
           case "messages":
             folder = m.inbox();
             if (params[0] != null) {
-              limit = Number(params[0]);
+              limit = +params[0];
             }
             if (_.isNaN(limit)) {
               if (params[0].toLowerCase() === "new") {
-                rl.question("to: ", function(to) {
-                  var names;
-                  if (to.trim() === "") {
-                    rl.prompt();
-                    return;
-                  }
-                  names = (function() {
-                    var _i, _len, _ref, _results;
-                    _ref = to.split(",");
-                    _results = [];
-                    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                      x = _ref[_i];
-                      _results.push(x.trim());
-                    }
-                    return _results;
-                  })();
-                  return rl.question("subject: ", function(subject) {
-                    var body, lineNumber, z;
-                    if (subject.trim() === "") {
-                      rl.prompt();
-                      return;
-                    }
-                    body = "";
-                    lineNumber = 0;
-                    z = function() {
-                      return rl.question("[" + lineNumber + "]> ", function(line) {
-                        line = line.trim();
-                        if (line.length === 0) {
-                          m.composeAndSendMessage(subject.trim(), body.trim(), names);
-                          console.log("Sent message to " + (names.join(', ')));
-                          rl.prompt();
-                          return;
-                        }
-                        body += line + "\n";
-                        lineNumber++;
-                        return z();
-                      });
-                    };
-                    return z();
-                  });
+                editor = (_ref = process.env.EDITOR) != null ? _ref : "vi";
+                file = "" + mahGisterDir + "/MESSAGE_EDIT";
+                fs.writeFileSync(file, "to (seperator: ','): \nsubject: \n\n### Type body under this line###\n\n");
+                resp = spawn(editor, [file], {
+                  stdio: "inherit"
                 });
+                if (resp.status !== 0 || (resp.error != null)) {
+                  console.log("Error while trying to spawn editor proccess, falling back to ol' VI.");
+                  resp = spawn("vi", [file], {
+                    stdio: "inherit"
+                  });
+                }
+                data = _.reject(fs.readFileSync(file, {
+                  encoding: "utf8"
+                }).split("\n"), function(s) {
+                  return s.trim().length === 0 || s.indexOf("###") === 0;
+                });
+                namesRaw = data[0].split(":").slice(2).join(":");
+                names = (function() {
+                  var _i, _len, _ref1, _results;
+                  _ref1 = namesRaw.split(",");
+                  _results = [];
+                  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                    x = _ref1[_i];
+                    _results.push(x.trim());
+                  }
+                  return _results;
+                })();
+                subject = data[1].split(":").slice(1).join(":");
+                body = data.slice(2).join("\n");
+                m.composeAndSendMessage(subject.trim(), body.trim(), names);
+                console.log("Sent message to " + (names.join(', ')) + ".");
+                rl.prompt();
                 return;
               } else {
                 folder = m.messageFolders(params[0])[0];
-                limit = params[1] != null ? Number(params[1]) : null;
+                limit = params[1] != null ? +params[1] : null;
               }
             }
             return folder.messages(limit, function(e, r) {
@@ -578,7 +585,8 @@
                 ask = function() {
                   return rl.question("msg> ", function(id) {
                     var amount, attachments, mail, msg, recipients, sendDate;
-                    if ((val = id.trim()).length === 0) {
+                    val = id.trim();
+                    if (val.length === 0) {
                       rl.prompt();
                       return;
                     }
@@ -667,8 +675,8 @@
             }
             inf = params[0];
             date = ((function() {
-              var _ref;
-              if ((val = (_ref = /^-?\d+$/.exec(inf)) != null ? _ref[0] : void 0) != null) {
+              var _ref1;
+              if ((val = (_ref1 = /^-?\d+$/.exec(inf)) != null ? _ref1[0] : void 0) != null) {
                 return new moment().add(val, "days");
               } else if (_.contains(all, inf.toLowerCase())) {
                 x = moment();
