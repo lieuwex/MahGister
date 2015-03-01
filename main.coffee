@@ -411,6 +411,8 @@ main = (val, magister) ->
 							m.composeAndSendMessage subject.trim(), body.trim(), names
 							console.log "Sent message to #{names.join(', ')}."
 
+							fs.unlink file # fuck errors
+
 							rl.prompt()
 							return
 						else
