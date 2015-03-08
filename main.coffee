@@ -268,27 +268,29 @@ main = (val, magister) ->
 									when 2, 3, 4, 5 then s.red
 									else s
 								)
-							else for appointment, i in r then do (appointment) ->
-								addZero = (s) -> if r.length > 10 and ("" + s).length isnt 2 then "0#{s}" else s
-								s = "#{addZero i}: "
-								if appointment.beginBySchoolHour()?
-									s += "[#{appointment.beginBySchoolHour()}] "
-								else
-									s += "[ ] "
+							else
+								console.log "Appointments for #{moment(date).format "dddd D MMMM YYYY"}\n".underline
+								for appointment, i in r then do (appointment) ->
+									addZero = (s) -> if r.length > 10 and ("" + s).length isnt 2 then "0#{s}" else s
+									s = "#{addZero i}: "
+									if appointment.beginBySchoolHour()?
+										s += "[#{appointment.beginBySchoolHour()}] "
+									else
+										s += "[ ] "
 
-								if appointment.fullDay()
-									s += "   Full Day  \t"
-								else
-									s += "#{moment(appointment.begin()).format("HH:mm")} - #{moment(appointment.end()).format("HH:mm")}	"
-								s += appointment.description()
+									if appointment.fullDay()
+										s += "   Full Day  \t"
+									else
+										s += "#{moment(appointment.begin()).format("HH:mm")} - #{moment(appointment.end()).format("HH:mm")}	"
+									s += appointment.description()
 
-								if appointment.isDone() then s = s.dim
+									if appointment.isDone() then s = s.dim
 
-								console.log ( switch appointment.infoType()
-									when 1 then s.blue
-									when 2, 3, 4, 5 then s.red
-									else s
-								)
+									console.log ( switch appointment.infoType()
+										when 1 then s.blue
+										when 2, 3, 4, 5 then s.red
+										else s
+									)
 
 						rl.prompt()
 
