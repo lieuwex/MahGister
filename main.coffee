@@ -48,7 +48,7 @@ showHelp = (exit = false) ->
 
 	console.log repeat "-"
 	console.log cent("MahGister").bold.red
-	console.log cent "(c) 2014 Lieuwe Rooijakkers"
+	console.log cent "(c) 2015 Lieuwe Rooijakkers"
 	console.log repeat "-"
 
 	for key in _.keys(commands)
