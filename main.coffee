@@ -51,7 +51,7 @@ showHelp = (exit = false) ->
 	console.log cent "(c) 2015 Lieuwe Rooijakkers"
 	console.log repeat "-"
 
-	for key in _.keys(commands)
+	for key in _(commands).keys().sort().value()
 		command = commands[key]
 		console.log key.bold + ": #{command.description}"
 		for param in (command.params ? [])
