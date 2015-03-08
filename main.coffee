@@ -251,7 +251,15 @@ main = (val, magister) ->
 								if appointment.scrapped()
 									s += "SCRAPPED".cyan
 								else
-									s += appointment.content().trim().replace(/[\n\r]+/g, "; ")
+									s += (
+										contentTrimmed = appointment.content().trim()
+										contentReplaced = contentTrimmed.replace(/[\n\r]+/g, "\n\n")
+
+										if contentTrimmed.split(/[\n\r]+/g).length > 1
+											"\n\n" + contentReplaced
+										else
+											contentReplaced
+									)
 
 								if appointment.isDone() then s = s.dim
 
