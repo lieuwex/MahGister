@@ -241,7 +241,7 @@ main = (val, magister) ->
 							if id?
 								appointment = r[+id]
 								unless appointment
-									console.log "Appointment ##{id} not found on #{days[moment(date).weekday()]}."
+									console.log "Appointment ##{id} not found on #{days[moment(date).weekday()]}.".red.bold
 									rl.prompt()
 									return
 
@@ -328,7 +328,7 @@ main = (val, magister) ->
 							rl.prompt()
 						else
 							m.appointments new Date(), moment().add(7, "days").toDate(), no, (e, r) ->
-								if e? then console.log "Error: #{e.message}"
+								if e? then console.log "Error: #{e.message}".red.bold
 								else
 									filterAndShow r
 									homeworkResults = _.filter(r, (a) -> not a.isDone() and not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
@@ -336,7 +336,7 @@ main = (val, magister) ->
 								rl.prompt()
 
 					else if _.isNaN +params[0]
-						console.log "Use homework <index>"
+						console.log "Use homework <index>".red.bold
 						rl.prompt()
 
 					else if homeworkResults?
@@ -358,7 +358,7 @@ main = (val, magister) ->
 
 					else
 						m.appointments new Date(), moment().add(7, "days").toDate(), no, (e, r) ->
-							if e? then console.log "Error: #{e.message}"
+							if e? then console.log "Error: #{e.message}".red.bold
 							else
 								homeworkResults = _.filter(r, (a) -> not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
 								appointment = homeworkResults[+params[0]]
@@ -442,11 +442,11 @@ main = (val, magister) ->
 							limit = if params[1]? then +params[1] else null
 
 					folder.messages limit, (e, r) ->
-						if e? then console.log "Error: #{e.message}"
+						if e? then console.log "Error: #{e.message}".red.bold
 						else
 							save = (attachment) ->
 								attachment.download no, (e, r) ->
-									if e? then console.log "Error: #{e.message}"
+									if e? then console.log "Error: #{e.message}".red.bold
 									else
 										rl.write null, {ctrl: true, name: 'u'}
 										console.log "Downloaded #{attachment.name()}"
@@ -491,7 +491,7 @@ main = (val, magister) ->
 										if lastMessage?
 											save lastMessage.attachments()[+splitted[1]]
 										else
-											console.log "No message provided and none read. Read a message or provide it using download <message id> <attachment id>"
+											console.log "No message provided and none read. Read a message or provide one using download <message id> <attachment id>.".red.bold
 
 										ask()
 										return
@@ -506,7 +506,7 @@ main = (val, magister) ->
 											(msg = lastMessage).move m.bin()
 											_.remove r, msg
 										else
-											console.log "No message provided and none read. Read a message or provide it using delete <message id> <attachment id>"
+											console.log "No message provided and none read. Read a message or provide one using delete <message id> <attachment id>.".red.bold
 
 										ask()
 										return
@@ -518,13 +518,13 @@ main = (val, magister) ->
 										return
 
 									else if _.isNaN(+val)
-										if val.length is 0 then console.log "Expected command or number."
-										else console.log "Unknown command: #{val}"
+										if val.length is 0 then console.log "Expected command or number.".red.bold
+										else console.log "Unknown command: #{val}".red.bold
 										ask()
 										return
 
 									if +val < 0 or +val >= r.length
-										console.log "Given index (#{+val}) out of bounds."
+										console.log "Given index (#{+val}) out of bounds.".red.bold
 										ask()
 										return
 
