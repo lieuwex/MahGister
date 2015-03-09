@@ -230,6 +230,11 @@ main = (val, magister) ->
 							moment inf
 					).toDate()
 
+					if _.isNaN date.getTime() # User entered invalid date.
+						console.log "Invalid date or day delta entered.".red.bold
+						rl.prompt()
+						return
+
 					m.appointments date, no, (e, r) ->
 						if e? then console.log "Error: #{e.message}"
 						else
