@@ -282,7 +282,10 @@ main = (val, magister) ->
 										s += "   Full Day  \t"
 									else
 										s += "#{moment(appointment.begin()).format("HH:mm")} - #{moment(appointment.end()).format("HH:mm")}	"
-									s += appointment.description()
+									if appointment.scrapped()
+										s += "SCRAPPED".cyan
+									else
+										s += appointment.description()
 
 									if appointment.isDone() then s = s.dim
 
