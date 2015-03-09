@@ -306,13 +306,17 @@ main = (val, magister) ->
 					if params.length is 0
 						filterAndShow = (appointments) ->
 							appointments = _.filter(appointments, (a) -> not a.isDone() and not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
+
+							index = 0
 							for weekday in [0..6]
 								filtered = _.filter(appointments, (a) -> moment(a.begin()).weekday() is weekday)
 								continue if filtered.length is 0
 
 								s = ""
 								s += days[weekday] + ": "
-								s += filtered.map((a) -> a.classes()[0]).join ", "
+								for a, i in filtered
+									s += "#{a.classes()[0]} [#{index++}]"
+									s += ", " if i + 1 isnt filtered.length
 
 								if _.any(filtered, (a) -> a.infoType() > 1)
 									console.log s.red
