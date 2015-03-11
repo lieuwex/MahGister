@@ -227,7 +227,7 @@ main = (val, magister) ->
 							x
 
 						else
-							moment inf
+							moment new Date inf
 					).toDate()
 
 					if _.isNaN date.getTime() # User entered invalid date.
@@ -573,7 +573,7 @@ main = (val, magister) ->
 							x
 
 						else
-							moment inf
+							moment new Date inf
 					).toDate()
 
 					m.appointments date, no, (e, r) ->
