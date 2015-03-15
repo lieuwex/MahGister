@@ -129,7 +129,16 @@ commands =
 			}
 		]
 	"next":
-		description: "Requires you to be in messages mode. Fetches the next x amount of messages. If no amount is given it will use 10."
+		description: "Requires you to be in messages mode. Fetches the next given amount of messages."
+		params: [
+			{
+				name: "amount"
+				type: "Number"
+				description: "Amount of messages to fetch."
+				example: "next 2".cyan + " # Gets the next 2 messages."
+				optional: 10
+			}
+		]
 	"delete":
 		description: "Requires you to be in messages mode. Moves a message to the bin."
 		params: [
