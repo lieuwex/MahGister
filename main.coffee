@@ -474,9 +474,18 @@ main = (val, magister) ->
 										ask()
 										return
 
-									if val.toLowerCase().indexOf("next") isnt -1 and (amount = +val.split(" ")[1..]) > 0
+									if val.toLowerCase().indexOf("next") > -1
+										amount = 10
+										if val.trim().split(" ").length > 1 and (x = +val.split(" ")[1..]) > 0
+											amount = x
+
 										m.inbox().messages amount, "skip #{limit}", (err, newMessages) ->
-											r = r.concat newMessages ? []
+											if err?
+												console.log "Error while fetching #{amount} new messages.".red.bold
+											else
+												r = r.concat newMessages
+												limit += amount
+
 											list()
 											ask()
 
