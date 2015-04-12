@@ -186,7 +186,6 @@ rl.on "close", -> process.exit 0
 if _.contains ["--help", "-h"], _.last(process.argv).toLowerCase() then showHelp yes
 
 main = (val, magister) ->
-	clearConsole()
 	magister ?= new Magister(val.school, val.userName, val.password)
 
 	magister.ready (err) ->
