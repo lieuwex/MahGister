@@ -29,7 +29,7 @@
   "dependencies": {
     "colors": "^1.0.3",
     "lodash": "^2.4.1",
-    "magister.js": ">=1.2.3",
+    "magister.js": ">=1.2.4",
     "moment": "^2.8.3",
     "node-persist": "0.0.2"
   },

@@ -634,17 +634,20 @@ else
 
 	askUser = ->
 		rl.question "What's your username? ", (name) -> rl.question "What's your password? ", (pass) ->
-			x = setTimeout ( ->
+			err = ->
 				console.log "Wrong username and/or password. Or other error."
 				askUser()
-			), 5000
+			x = setTimeout (-> err()), 5000
 
-			new Magister(userInfo.school, name, pass).ready (m) ->
-				userInfo.userName = name
-				userInfo.password = pass
+			new Magister(userInfo.school, name, pass).ready (err) ->
 				clearTimeout x
 
-				storage.setItem "user", userInfo
-				main userInfo, m
+				if err then err()
+				else
+					userInfo.userName = name
+					userInfo.password = pass
+
+					storage.setItem "user", userInfo
+					main userInfo, this
 
 	askSchool askUser
