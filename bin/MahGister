@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 (function() {
-  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, magisterJs, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _;
+  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, getDate, magisterJs, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _;
 
   readline = require('readline');
 
@@ -24,7 +24,7 @@
 
   mahGisterDir = "" + (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister";
 
-  days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
   shortDays = ["zo", "ma", "di", "wo", "do", "vr", "za"];
 
@@ -32,6 +32,10 @@
 
   clearConsole = function() {
     return console.log('\033[2J\033[1;0H');
+  };
+
+  getDate = function(date) {
+    return new Date(date.getUTCFullYear(), date.getMonth(), date.getDate());
   };
 
   showHelp = function(exit) {
@@ -58,9 +62,9 @@
     };
     console.log(repeat("-"));
     console.log(cent("MahGister").bold.red);
-    console.log(cent("(c) 2014 Lieuwe Rooijakkers"));
+    console.log(cent("(c) 2015 Lieuwe Rooijakkers"));
     console.log(repeat("-"));
-    _ref = _.keys(commands);
+    _ref = _(commands).keys().sort().value();
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       key = _ref[_i];
       command = commands[key];
@@ -151,7 +155,16 @@
       ]
     },
     "next": {
-      description: "Requires you to be in messages mode. Fetches the next x amount of messages. If no amount is given it will use 10."
+      description: "Requires you to be in messages mode. Fetches the next given amount of messages.",
+      params: [
+        {
+          name: "amount",
+          type: "Number",
+          description: "Amount of messages to fetch.",
+          example: "next 2".cyan + " # Gets the next 2 messages.",
+          optional: 10
+        }
+      ]
     },
     "delete": {
       description: "Requires you to be in messages mode. Moves a message to the bin.",
@@ -218,7 +231,6 @@
   }
 
   main = function(val, magister) {
-    clearConsole();
     if (magister == null) {
       magister = new Magister(val.school, val.userName, val.password);
     }
@@ -271,18 +283,23 @@
                 }
                 return x;
               } else {
-                return moment(inf);
+                return moment(new Date(inf));
               }
             })()).toDate();
+            if (_.isNaN(date.getTime())) {
+              console.log("Invalid date or day delta entered.".red.bold);
+              rl.prompt();
+              return;
+            }
             return m.appointments(date, false, function(e, r) {
-              var appointment, i, s, _fn, _i, _len;
+              var appointment, contentReplaced, contentTrimmed, i, s, _fn, _i, _len;
               if (e != null) {
                 console.log("Error: " + e.message);
               } else {
                 if (id != null) {
                   appointment = r[+id];
                   if (!appointment) {
-                    console.log("Appointment #" + id + " not found on " + days[moment(date).weekday()] + ".");
+                    console.log(("Appointment #" + id + " not found on " + days[moment(date).weekday()] + ".").red.bold);
                     rl.prompt();
                     return;
                   }
@@ -299,7 +316,7 @@
                   if (appointment.scrapped()) {
                     s += "SCRAPPED".cyan;
                   } else {
-                    s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+                    s += (contentTrimmed = appointment.content().trim(), contentReplaced = contentTrimmed.replace(/[\n\r]+/g, "\n\n"), contentTrimmed.split(/[\n\r]+/g).length > 1 ? "\n\n" + contentReplaced : contentReplaced);
                   }
                   if (appointment.isDone()) {
                     s = s.dim;
@@ -318,6 +335,7 @@
                     }
                   })()));
                 } else {
+                  console.log(("Appointments for " + (moment(date).format("dddd D MMMM YYYY")) + "\n").underline);
                   _fn = function(appointment) {
                     var addZero;
                     addZero = function(s) {
@@ -338,7 +356,11 @@
                     } else {
                       s += "" + (moment(appointment.begin()).format("HH:mm")) + " - " + (moment(appointment.end()).format("HH:mm")) + "	";
                     }
-                    s += appointment.description();
+                    if (appointment.scrapped()) {
+                      s += "SCRAPPED".cyan;
+                    } else {
+                      s += appointment.description();
+                    }
                     if (appointment.isDone()) {
                       s = s.dim;
                     }
@@ -367,23 +389,40 @@
           case "homework":
             if (params.length === 0) {
               filterAndShow = function(appointments) {
-                var filtered, s, weekday, _i, _results;
+                var a, appointmentDays, day, filtered, i, index, s, _i, _j, _len, _len1, _results;
                 appointments = _.filter(appointments, function(a) {
                   return !a.isDone() && !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
                 });
+                index = 0;
+                appointmentDays = _(appointments).map(function(a) {
+                  return {
+                    timestamp: getDate(a.begin()).getTime(),
+                    appointments: _.filter(appointments, function(x) {
+                      return getDate(x.begin()).getTime() === getDate(a.begin()).getTime();
+                    })
+                  };
+                  return new Date(d.getUTCFullYear(), d.getMonth(), d.getDate()).getTime();
+                }).uniq(function(a) {
+                  return a.timestamp;
+                }).sort(function(a) {
+                  return a.timestamp;
+                }).value();
                 _results = [];
-                for (weekday = _i = 0; _i <= 6; weekday = ++_i) {
-                  filtered = _.filter(appointments, function(a) {
-                    return moment(a.begin()).weekday() === weekday;
-                  });
+                for (_i = 0, _len = appointmentDays.length; _i < _len; _i++) {
+                  day = appointmentDays[_i];
+                  filtered = day.appointments;
                   if (filtered.length === 0) {
                     continue;
                   }
                   s = "";
-                  s += days[weekday] + ": ";
-                  s += filtered.map(function(a) {
-                    return a.classes()[0];
-                  }).join(", ");
+                  s += days[moment(day.timestamp).weekday()] + ": ";
+                  for (i = _j = 0, _len1 = filtered.length; _j < _len1; i = ++_j) {
+                    a = filtered[i];
+                    s += "" + (a.classes()[0]) + " [" + (index++) + "]";
+                    if (i + 1 !== filtered.length) {
+                      s += ", ";
+                    }
+                  }
                   if (_.any(filtered, function(a) {
                     return a.infoType() > 1;
                   })) {
@@ -400,7 +439,7 @@
               } else {
                 return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
                   if (e != null) {
-                    console.log("Error: " + e.message);
+                    console.log(("Error: " + e.message).red.bold);
                   } else {
                     filterAndShow(r);
                     homeworkResults = _.filter(r, function(a) {
@@ -411,7 +450,7 @@
                 });
               }
             } else if (_.isNaN(+params[0])) {
-              console.log("Use homework <index>");
+              console.log("Use homework <index>".red.bold);
               return rl.prompt();
             } else if (homeworkResults != null) {
               appointment = homeworkResults[+params[0]];
@@ -431,7 +470,7 @@
             } else {
               return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
                 if (e != null) {
-                  return console.log("Error: " + e.message);
+                  return console.log(("Error: " + e.message).red.bold);
                 } else {
                   homeworkResults = _.filter(r, function(a) {
                     return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
@@ -520,7 +559,7 @@
                 data = _.reject(fs.readFileSync(file, {
                   encoding: "utf8"
                 }).split("\n"), function(s) {
-                  return s.trim().length === 0 || s.indexOf("###") === 0;
+                  return s.indexOf("###") === 0;
                 });
                 namesRaw = data[0].split(":").slice(2).join(":");
                 names = (function() {
@@ -537,6 +576,7 @@
                 body = data.slice(2).join("\n");
                 m.composeAndSendMessage(subject.trim(), body.trim(), names);
                 console.log("Sent message to " + (names.join(', ')) + ".");
+                fs.unlink(file);
                 rl.prompt();
                 return;
               } else {
@@ -547,12 +587,12 @@
             return folder.messages(limit, function(e, r) {
               var ask, list, save;
               if (e != null) {
-                return console.log("Error: " + e.message);
+                return console.log(("Error: " + e.message).red.bold);
               } else {
                 save = function(attachment) {
                   return attachment.download(false, function(e, r) {
                     if (e != null) {
-                      console.log("Error: " + e.message);
+                      console.log(("Error: " + e.message).red.bold);
                     } else {
                       rl.write(null, {
                         ctrl: true,
@@ -595,9 +635,18 @@
                       ask();
                       return;
                     }
-                    if (val.toLowerCase().indexOf("next") !== -1 && (amount = +val.split(" ").slice(1)) > 0) {
+                    if (val.toLowerCase().indexOf("next") > -1) {
+                      amount = 10;
+                      if (val.trim().split(" ").length > 1 && (x = +val.split(" ").slice(1)) > 0) {
+                        amount = x;
+                      }
                       m.inbox().messages(amount, "skip " + limit, function(err, newMessages) {
-                        r = r.concat(newMessages != null ? newMessages : []);
+                        if (err != null) {
+                          console.log(("Error while fetching " + amount + " new messages.").red.bold);
+                        } else {
+                          r = r.concat(newMessages);
+                          limit += amount;
+                        }
                         list();
                         return ask();
                       });
@@ -612,7 +661,7 @@
                       if (lastMessage != null) {
                         save(lastMessage.attachments()[+splitted[1]]);
                       } else {
-                        console.log("No message provided and none read. Read a message or provide it using download <message id> <attachment id>");
+                        console.log("No message provided and none read. Read a message or provide one using download <message id> <attachment id>.".red.bold);
                       }
                       ask();
                       return;
@@ -626,7 +675,7 @@
                         (msg = lastMessage).move(m.bin());
                         _.remove(r, msg);
                       } else {
-                        console.log("No message provided and none read. Read a message or provide it using delete <message id> <attachment id>");
+                        console.log("No message provided and none read. Read a message or provide one using delete <message id> <attachment id>.".red.bold);
                       }
                       ask();
                       return;
@@ -637,15 +686,15 @@
                       return;
                     } else if (_.isNaN(+val)) {
                       if (val.length === 0) {
-                        console.log("Expected command or number.");
+                        console.log("Expected command or number.".red.bold);
                       } else {
-                        console.log("Unknown command: " + val);
+                        console.log(("Unknown command: " + val).red.bold);
                       }
                       ask();
                       return;
                     }
                     if (+val < 0 || +val >= r.length) {
-                      console.log("Given index (" + (+val) + ") out of bounds.");
+                      console.log(("Given index (" + (+val) + ") out of bounds.").red.bold);
                       ask();
                       return;
                     }
@@ -691,7 +740,7 @@
                 }
                 return x;
               } else {
-                return moment(inf);
+                return moment(new Date(inf));
               }
             })()).toDate();
             return m.appointments(date, false, function(e, r) {
@@ -752,17 +801,24 @@
     askUser = function() {
       return rl.question("What's your username? ", function(name) {
         return rl.question("What's your password? ", function(pass) {
-          var x;
-          x = setTimeout((function() {
+          var err, x;
+          err = function() {
             console.log("Wrong username and/or password. Or other error.");
             return askUser();
+          };
+          x = setTimeout((function() {
+            return err();
           }), 5000);
-          return new Magister(userInfo.school, name, pass).ready(function(m) {
-            userInfo.userName = name;
-            userInfo.password = pass;
+          return new Magister(userInfo.school, name, pass).ready(function(err) {
             clearTimeout(x);
-            storage.setItem("user", userInfo);
-            return main(userInfo, m);
+            if (err) {
+              return err();
+            } else {
+              userInfo.userName = name;
+              userInfo.password = pass;
+              storage.setItem("user", userInfo);
+              return main(userInfo, this);
+            }
           });
         });
       });
