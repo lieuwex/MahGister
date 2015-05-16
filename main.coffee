@@ -15,13 +15,13 @@ MagisterSchool = magisterJs.MagisterSchool
 mahGisterDir = "#{process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.MahGister"
 
 days = [
-	"sunday"
 	"monday"
 	"tuesday"
 	"wednesday"
 	"thursday"
 	"friday"
 	"saturday"
+	"sunday"
 ]
 
 shortDays = [
@@ -37,6 +37,7 @@ shortDays = [
 all = days.concat shortDays
 
 clearConsole = -> `console.log('\033[2J\033[1;0H')`
+getDate = (date) -> new Date date.getUTCFullYear(), date.getMonth(), date.getDate()
 
 showHelp = (exit = false) ->
 	repeat = (org, length = process.stdout.columns) ->
@@ -316,12 +317,24 @@ main = (val, magister) ->
 							appointments = _.filter(appointments, (a) -> not a.isDone() and not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
 
 							index = 0
-							for weekday in [0..6]
-								filtered = _.filter(appointments, (a) -> moment(a.begin()).weekday() is weekday)
+							appointmentDays = _(appointments)
+								.map (a) ->
+									return {
+										timestamp: getDate(a.begin()).getTime()
+										appointments: _.filter appointments, (x) -> getDate(x.begin()).getTime() is getDate(a.begin()).getTime()
+									}
+
+									return new Date(d.getUTCFullYear(), d.getMonth(), d.getDate()).getTime()
+								.uniq (a) -> a.timestamp
+								.sort (a) -> a.timestamp
+								.value()
+
+							for day in appointmentDays
+								filtered = day.appointments
 								continue if filtered.length is 0
 
 								s = ""
-								s += days[weekday] + ": "
+								s += days[moment(day.timestamp).weekday()] + ": "
 								for a, i in filtered
 									s += "#{a.classes()[0]} [#{index++}]"
 									s += ", " if i + 1 isnt filtered.length
