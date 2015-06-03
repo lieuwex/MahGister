@@ -1,3 +1,5 @@
 attachments
 node_modules
 persist
+.*.swp
+tags
