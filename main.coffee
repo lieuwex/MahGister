@@ -15,13 +15,13 @@ MagisterSchool = magisterJs.MagisterSchool
 mahGisterDir = "#{process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.MahGister"
 
 days = [
+	"sunday"
 	"monday"
 	"tuesday"
 	"wednesday"
 	"thursday"
 	"friday"
 	"saturday"
-	"sunday"
 ]
 
 shortDays = [
