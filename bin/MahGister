@@ -21,7 +21,8 @@
  */
 
 (function() {
-  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, getDate, magisterJs, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _;
+  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, getDate, magisterJs, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   readline = require('readline');
 
@@ -410,9 +411,10 @@
           case "homework":
             if (params.length === 0) {
               filterAndShow = function(appointments) {
-                var a, appointmentDays, day, filtered, i, index, s, _i, _j, _len, _len1, _results;
-                appointments = _.filter(appointments, function(a) {
-                  return !a.isDone() && !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
+                var a, appointment, appointmentDays, day, i, index, s, _i, _j, _len, _len1, _ref, _results;
+                appointment = _.filter(appointments, function(a) {
+                  var _ref;
+                  return !a.fullDay() && (a.content() != null) && (_ref = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref) >= 0);
                 });
                 index = 0;
                 appointmentDays = _(appointments).map(function(a) {
@@ -422,29 +424,25 @@
                       return getDate(x.begin()).getTime() === getDate(a.begin()).getTime();
                     })
                   };
-                  return new Date(d.getUTCFullYear(), d.getMonth(), d.getDate()).getTime();
                 }).uniq(function(a) {
-                  return a.timestamp;
-                }).sort(function(a) {
                   return a.timestamp;
                 }).value();
                 _results = [];
                 for (_i = 0, _len = appointmentDays.length; _i < _len; _i++) {
                   day = appointmentDays[_i];
-                  filtered = day.appointments;
-                  if (filtered.length === 0) {
+                  if (!(day.appointments.length > 0)) {
                     continue;
                   }
-                  s = "";
-                  s += days[moment(day.timestamp).weekday()] + ": ";
-                  for (i = _j = 0, _len1 = filtered.length; _j < _len1; i = ++_j) {
-                    a = filtered[i];
+                  s = days[moment(day.timestamp).weekday()] + ": ";
+                  _ref = day.appointments;
+                  for (i = _j = 0, _len1 = _ref.length; _j < _len1; i = ++_j) {
+                    a = _ref[i];
                     s += "" + (a.classes()[0]) + " [" + (index++) + "]";
-                    if (i + 1 !== filtered.length) {
+                    if (i + 1 !== day.appointments.length) {
                       s += ", ";
                     }
                   }
-                  if (_.any(filtered, function(a) {
+                  if (_.any(day.appointments, function(a) {
                     return a.infoType() > 1;
                   })) {
                     _results.push(console.log(s.red));
@@ -464,7 +462,8 @@
                   } else {
                     filterAndShow(r);
                     homeworkResults = _.filter(r, function(a) {
-                      return !a.isDone() && !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
+                      var _ref;
+                      return !a.fullDay() && (a.content() != null) && (_ref = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref) >= 0);
                     });
                   }
                   return rl.prompt();
