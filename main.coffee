@@ -334,7 +334,7 @@ main = (val, magister) ->
 				when "homework"
 					if params.length is 0
 						filterAndShow = (appointments) ->
-							appointments = _.filter(appointments, (a) -> not a.isDone() and not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
+							appointment = _.filter appointments, (a) -> not a.fullDay() and a.content()? and a.infoType() in [1..5]
 
 							index = 0
 							appointmentDays = _(appointments)
@@ -343,23 +343,17 @@ main = (val, magister) ->
 										timestamp: getDate(a.begin()).getTime()
 										appointments: _.filter appointments, (x) -> getDate(x.begin()).getTime() is getDate(a.begin()).getTime()
 									}
-
-									return new Date(d.getUTCFullYear(), d.getMonth(), d.getDate()).getTime()
 								.uniq (a) -> a.timestamp
-								.sort (a) -> a.timestamp
 								.value()
 
-							for day in appointmentDays
-								filtered = day.appointments
-								continue if filtered.length is 0
+							for day in appointmentDays when day.appointments.length > 0
+								s = days[moment(day.timestamp).weekday()] + ": "
 
-								s = ""
-								s += days[moment(day.timestamp).weekday()] + ": "
-								for a, i in filtered
+								for a, i in day.appointments
 									s += "#{a.classes()[0]} [#{index++}]"
-									s += ", " if i + 1 isnt filtered.length
+									s += ", " if i + 1 isnt day.appointments.length
 
-								if _.any(filtered, (a) -> a.infoType() > 1)
+								if _.any(day.appointments, (a) -> a.infoType() > 1)
 									console.log s.red
 								else
 									console.log s
@@ -372,7 +366,7 @@ main = (val, magister) ->
 								if e? then console.log "Error: #{e.message}".red.bold
 								else
 									filterAndShow r
-									homeworkResults = _.filter(r, (a) -> not a.isDone() and not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
+									homeworkResults = _.filter r, (a) -> not a.fullDay() and a.content()? and a.infoType() in [1..5]
 
 								rl.prompt()
 
