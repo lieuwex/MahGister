@@ -365,8 +365,12 @@ main = (val, magister) ->
 							m.appointments new Date(), moment().add(7, "days").toDate(), no, (e, r) ->
 								if e? then console.log "Error: #{e.message}".red.bold
 								else
-									filterAndShow r
-									homeworkResults = _.filter r, (a) -> not a.fullDay() and a.content()? and a.infoType() in [1..5]
+									homeworkResults = _(r)
+										.filter (a) -> a.begin().getTime() > _.now() and not a.fullDay() and a.content()? and a.infoType() in [1..5]
+										.sortBy (a) -> a.begin().getTime()
+										.value()
+
+									filterAndShow homeworkResults
 
 								rl.prompt()
 
@@ -395,7 +399,11 @@ main = (val, magister) ->
 						m.appointments new Date(), moment().add(7, "days").toDate(), no, (e, r) ->
 							if e? then console.log "Error: #{e.message}".red.bold
 							else
-								homeworkResults = _.filter(r, (a) -> not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
+								homeworkResults = _(r)
+									.filter (a) -> a.begin().getTime() > _.now() and not a.fullDay() and a.content()? and a.infoType() in [1..5]
+									.sortBy (a) -> a.begin().getTime()
+									.value()
+
 								appointment = homeworkResults[+params[0]]
 
 								unless appointment?
@@ -436,8 +444,12 @@ main = (val, magister) ->
 						m.appointments new Date(), moment().add(7, "days").toDate(), no, (e, r) ->
 							if e? then console.log "Error: #{e.message}"
 							else
-								filterAndShow r
-								homeworkResults = _.filter(r, (a) -> not a.fullDay() and a.content()? and _.contains [1..5], a.infoType())
+									homeworkResults = _(r)
+										.filter (a) ->  not a.fullDay() and a.content()? and a.infoType() in [1..5]
+										.sortBy (a) -> a.begin().getTime()
+										.value()
+
+									filterAndShow homeworkResults
 
 							rl.prompt()
 
