@@ -223,7 +223,7 @@ main = (val, magister) ->
 		rl.on "line", (l) ->
 			splitted = l.trim().split " "
 			params = splitted[1..]
-			switch splitted[0]
+			switch splitted[0].toLowerCase()
 				when "who"
 					if m.profileInfo().namePrefix()?
 						console.log "#{m.profileInfo().firstName()} #{m.profileInfo().namePrefix()} #{m.profileInfo().lastName()}"
