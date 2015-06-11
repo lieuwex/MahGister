@@ -190,9 +190,13 @@ rl = readline.createInterface
 	input: process.stdin
 	output: process.stdout
 	completer: (s) ->
-		filtered = _.keys(commands).filter((k) -> k.indexOf(s.toLowerCase().split(' ')[0]) is 0).map((c) -> c + ' ')
+		filtered = _(commands)
+			.keys()
+			.filter (k) -> k.indexOf(s.toLowerCase().split(' ')[0]) is 0
+			.map (c) -> c + ' '
+			.value()
 
-		return [(if filtered.length isnt 0 then filtered else _.keys(commands)), s]
+		[ filtered, s ]
 
 storage.initSync
 	dir: mahGisterDir
