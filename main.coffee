@@ -212,7 +212,7 @@ main = (val, magister) ->
 
 	magister.ready (err) ->
 		if err?
-			console.err 'Magister returned error while logging in.'
+			console.error "Magister returned error while logging in: '#{err.message}'"
 			process.exit 32
 
 		m = this
