@@ -461,7 +461,7 @@ main = (val, magister) ->
 					if _.isNaN(limit)
 						if params[0].toLowerCase() is 'new'
 							editor = process.env.EDITOR ? 'vi'
-							file = '#{mahGisterDir}/MESSAGE_EDIT'
+							file = "#{mahGisterDir}/MESSAGE_EDIT"
 							fs.writeFileSync file, 'to (seperator: ','): \nsubject: \n\n### Type body under this line###\n\n'
 
 							resp = spawn editor, [file], stdio: 'inherit'
