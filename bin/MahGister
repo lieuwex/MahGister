@@ -21,12 +21,12 @@
  */
 
 (function() {
-  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, getDate, magisterJs, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _,
+  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, getDate, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   readline = require('readline');
 
-  _ = require("lodash");
+  _ = require('lodash');
 
   storage = require('node-persist');
 
@@ -36,19 +36,15 @@
 
   fs = require('fs');
 
-  spawn = require("child_process").spawnSync;
+  spawn = require('child_process').spawnSync;
 
-  magisterJs = require("magister.js");
-
-  Magister = magisterJs.Magister;
-
-  MagisterSchool = magisterJs.MagisterSchool;
+  _ref = require('magister.js'), Magister = _ref.Magister, MagisterSchool = _ref.MagisterSchool;
 
   mahGisterDir = "" + (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister";
 
-  days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
-  shortDays = ["zo", "ma", "di", "wo", "do", "vr", "za"];
+  shortDays = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
 
   all = days.concat(shortDays);
 
@@ -61,17 +57,17 @@
   };
 
   showHelp = function(exit) {
-    var cent, command, key, param, repeat, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+    var cent, command, key, param, repeat, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
     if (exit == null) {
       exit = false;
     }
     repeat = function(org, length) {
-      var i, res, _i;
+      var i, res, _i, _ref1;
       if (length == null) {
         length = process.stdout.columns;
       }
-      res = "";
-      for (i = _i = 0; 0 <= length ? _i < length : _i > length; i = 0 <= length ? ++_i : --_i) {
+      res = '';
+      for (i = _i = 0, _ref1 = Math.floor(length / org.length); 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         res += org;
       }
       return res;
@@ -80,27 +76,27 @@
       if (xAxis == null) {
         xAxis = process.stdout.columns;
       }
-      return repeat(" ", (xAxis / 2) - s.length / 2) + s + repeat(" ", (xAxis / 2) - s.length / 2);
+      return repeat(' ', (xAxis / 2) - s.length / 2) + s + repeat(' ', (xAxis / 2) - s.length / 2);
     };
-    console.log(repeat("-"));
-    console.log(cent("MahGister").bold.red);
-    console.log(cent("(c) 2015 Lieuwe Rooijakkers"));
-    console.log(repeat("-"));
-    _ref = _(commands).keys().sort().value();
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      key = _ref[_i];
+    console.log(repeat('-'));
+    console.log(cent('MahGister').bold.red);
+    console.log(cent('(c) 2015 Lieuwe Rooijakkers'));
+    console.log(repeat('-'));
+    _ref1 = _(commands).keys().sort().value();
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      key = _ref1[_i];
       command = commands[key];
       console.log(key.bold + (": " + command.description));
-      _ref2 = (_ref1 = command.params) != null ? _ref1 : [];
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        param = _ref2[_j];
-        console.log("");
-        console.log("    " + param.name.underline + (" [" + param.type + "]: " + param.description) + ((param.optional == null) || param.optional === false ? "" : param.optional === true ? " (optional)".red : (" (default: " + param.optional + ")").red));
+      _ref3 = (_ref2 = command.params) != null ? _ref2 : [];
+      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+        param = _ref3[_j];
+        console.log('');
+        console.log('    ' + param.name.underline + (" [" + param.type + "]: " + param.description) + ((param.optional == null) || param.optional === false ? "" : param.optional === true ? " (optional)".red : (" (default: " + param.optional + ")").red));
         if (param.example != null) {
-          console.log("    Example".bold + (": " + param.example));
+          console.log('    Example'.bold + (": " + param.example));
         }
       }
-      console.log(repeat("-"));
+      console.log(repeat('-'));
     }
     if (exit) {
       return process.exit(0);
@@ -110,113 +106,113 @@
   };
 
   commands = {
-    "help": {
-      description: "What do you expect?"
+    'help': {
+      description: 'What do you expect?'
     },
-    "who": {
-      description: "Returns the name of the current logged in user."
+    'who': {
+      description: 'Returns the name of the current logged in user.'
     },
-    "clear": {
-      description: "Clears the screen."
+    'clear': {
+      description: 'Clears the screen.'
     },
-    "appointments": {
-      description: "Shows a list of the appointments of the user.",
+    'appointments': {
+      description: 'Shows a list of the appointments of the user.',
       params: [
         {
-          name: "days",
-          type: "Number",
-          description: "How many days to add to the current day.",
-          example: "appointments 2".cyan + " # Gets appointments of the day after tommorow.",
+          name: 'days',
+          type: 'Number',
+          description: 'How many days to add to the current day.',
+          example: 'appointments 2'.cyan + ' # Gets appointments of the day after tommorow.',
           optional: 0
         }, {
-          name: "appointmentId",
-          type: "Number",
-          description: "The index of the appointment to show details about.",
-          example: "appointments 2 1".cyan + " # Shows the details of the second appointment of the appointments of the day after tommorow.",
+          name: 'appointmentId',
+          type: 'Number',
+          description: 'The index of the appointment to show details about.',
+          example: 'appointments 2 1'.cyan + ' # Shows the details of the second appointment of the appointments of the day after tommorow.',
           optional: true
         }
       ]
     },
-    "homework": {
-      description: "Returns the homework of the current user."
+    'homework': {
+      description: 'Returns the homework of the current user.'
     },
-    "tests": {
-      description: "Returns the tests of the current user."
+    'tests': {
+      description: 'Returns the tests of the current user.'
     },
-    "messages": {
-      description: "Goes into messages mode and shows a list of messages.",
+    'messages': {
+      description: 'Goes into messages mode and shows a list of messages.',
       params: [
         {
-          name: "inbox",
-          type: "String",
-          description: "The name of the inbox to open.",
-          optional: "Postvak In"
+          name: 'inbox',
+          type: 'String',
+          description: 'The name of the inbox to open.',
+          optional: 'Postvak In'
         }
       ]
     },
-    "messages new": {
-      description: "Opens the dialog to create a new message."
+    'messages new': {
+      description: 'Opens the dialog to create a new message.'
     },
-    "list": {
-      description: "Requires you to be in messages mode. This will show the current fetched messages."
+    'list': {
+      description: 'Requires you to be in messages mode. This will show the current fetched messages.'
     },
-    "download": {
-      description: "Requires you to be in messages mode. This will download an attachment.",
+    'download': {
+      description: 'Requires you to be in messages mode. This will download an attachment.',
       params: [
         {
-          name: "messageId",
-          type: "Number",
-          description: "The ID of the message to download the attachment from. Fallsback to the previous message if none is given.",
+          name: 'messageId',
+          type: 'Number',
+          description: 'The ID of the message to download the attachment from. Fallsback to the previous message if none is given.',
           optional: true
         }, {
-          name: "attachmentId",
-          type: "Number",
-          description: "The index of the attachment to download.",
+          name: 'attachmentId',
+          type: 'Number',
+          description: 'The index of the attachment to download.',
           optional: false
         }
       ]
     },
-    "next": {
-      description: "Requires you to be in messages mode. Fetches the next given amount of messages.",
+    'next': {
+      description: 'Requires you to be in messages mode. Fetches the next given amount of messages.',
       params: [
         {
-          name: "amount",
-          type: "Number",
-          description: "Amount of messages to fetch.",
-          example: "next 2".cyan + " # Gets the next 2 messages.",
+          name: 'amount',
+          type: 'Number',
+          description: 'Amount of messages to fetch.',
+          example: 'next 2'.cyan + ' # Gets the next 2 messages.',
           optional: 10
         }
       ]
     },
-    "delete": {
-      description: "Requires you to be in messages mode. Moves a message to the bin.",
+    'delete': {
+      description: 'Requires you to be in messages mode. Moves a message to the bin.',
       params: [
         {
-          name: "messageId",
-          type: "Number",
-          description: "The ID of the message to remove. Fallsback to the previous message if none is given.",
+          name: 'messageId',
+          type: 'Number',
+          description: 'The ID of the message to remove. Fallsback to the previous message if none is given.',
           optional: true
         }
       ]
     },
-    "done": {
-      description: "Marks the given appointment as done.",
+    'done': {
+      description: 'Marks the given appointment as done.',
       params: [
         {
-          name: "days",
-          type: "Number",
-          description: "How many days to add to the current day.",
+          name: 'days',
+          type: 'Number',
+          description: 'How many days to add to the current day.',
           optional: false
         }, {
-          name: "appointmentId",
-          type: "Number",
-          description: "The index of the appointment to mark as done.",
+          name: 'appointmentId',
+          type: 'Number',
+          description: 'The index of the appointment to mark as done.',
           optional: false
         }
       ]
     },
-    "exit": {
-      description: "Exists MahGister."
+    'exit': {
+      description: 'Exists MahGister.'
     }
   };
 
@@ -225,12 +221,12 @@
     output: process.stdout,
     completer: function(s) {
       var filtered;
-      filtered = _.keys(commands).filter(function(k) {
-        return k.indexOf(s.toLowerCase().split(" ")[0]) === 0;
+      filtered = _(commands).keys().filter(function(k) {
+        return k.indexOf(s.toLowerCase().split(' ')[0]) === 0;
       }).map(function(c) {
-        return c + " ";
-      });
-      return [(filtered.length !== 0 ? filtered : _.keys(commands)), s];
+        return c + ' ';
+      }).value();
+      return [filtered, s];
     }
   });
 
@@ -240,15 +236,15 @@
 
   fs.exists('./attachments', function(r) {
     if (!r) {
-      return fs.mkdir("attachments");
+      return fs.mkdir('attachments');
     }
   });
 
-  rl.on("close", function() {
+  rl.on('close', function() {
     return process.exit(0);
   });
 
-  if (_.contains(["--help", "-h"], _.last(process.argv).toLowerCase())) {
+  if (_.contains(['--help', '-h'], _.last(process.argv).toLowerCase())) {
     showHelp(true);
   }
 
@@ -259,7 +255,7 @@
     return magister.ready(function(err) {
       var homeworkResults, lastMessage, m;
       if (err != null) {
-        console.err("Magister returned error while logging in.");
+        console.error("Magister returned error while logging in: '" + err.message + "'");
         process.exit(32);
       }
       m = this;
@@ -267,41 +263,41 @@
       lastMessage = null;
       console.log("Welcome, " + (m.profileInfo().firstName()));
       rl.prompt();
-      return rl.on("line", function(l) {
-        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, resp, s, splitted, subject, x, _ref;
-        splitted = l.trim().split(" ");
+      return rl.on('line', function(l) {
+        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, resp, s, splitted, subject, x, _ref1;
+        splitted = l.trim().split(' ');
         params = splitted.slice(1);
-        switch (splitted[0]) {
-          case "who":
+        switch (splitted[0].toLowerCase()) {
+          case 'who':
             if (m.profileInfo().namePrefix() != null) {
               console.log("" + (m.profileInfo().firstName()) + " " + (m.profileInfo().namePrefix()) + " " + (m.profileInfo().lastName()));
             } else {
               console.log("" + (m.profileInfo().firstName()) + " " + (m.profileInfo().lastName()));
             }
             return rl.prompt();
-          case "clear":
+          case 'clear':
             clearConsole();
             return rl.prompt();
-          case "appointments":
+          case 'appointments':
             inf = params[0];
             if (inf == null) {
               inf = 0;
             }
             id = params[1];
             date = ((function() {
-              var _ref;
-              if ((val = (_ref = /^-?\d+$/.exec(inf)) != null ? _ref[0] : void 0) != null) {
-                return new moment().add(+val, "days");
+              var _ref1;
+              if ((val = (_ref1 = /^-?\d+$/.exec(inf)) != null ? _ref1[0] : void 0) != null) {
+                return new moment().add(+val, 'days');
               } else if (_.contains(all, inf.toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
-                  x.add(1, "days");
+                  x.add(1, 'days');
                 }
                 return x;
-              } else if (inf[0] === "-" && _.contains(all, inf.slice(1).toLowerCase())) {
+              } else if (inf[0] === '-' && _.contains(all, inf.slice(1).toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.slice(1).toLowerCase() && shortDays[x.weekday()] !== inf.slice(1).toLowerCase()) {
-                  x.add(-1, "days");
+                  x.add(-1, 'days');
                 }
                 return x;
               } else {
@@ -309,7 +305,7 @@
               }
             })()).toDate();
             if (_.isNaN(date.getTime())) {
-              console.log("Invalid date or day delta entered.".red.bold);
+              console.log('Invalid date or day delta entered.'.red.bold);
               rl.prompt();
               return;
             }
@@ -325,20 +321,20 @@
                     rl.prompt();
                     return;
                   }
-                  s = "";
-                  s += days[moment(appointment.begin()).weekday()] + "    ";
+                  s = '';
+                  s += days[moment(appointment.begin()).weekday()] + '    ';
                   if ((val = appointment.classes()[0]) != null) {
-                    s += val + " ";
+                    s += val + ' ';
                     if (appointment.location() != null) {
-                      s += "" + (appointment.location()) + "    ";
+                      s += '#{appointment.location()}    ';
                     }
                   } else {
-                    s += appointment.description() + "    ";
+                    s += appointment.description() + '    ';
                   }
                   if (appointment.scrapped()) {
-                    s += "SCRAPPED".cyan;
+                    s += 'SCRAPPED'.cyan;
                   } else {
-                    s += (contentTrimmed = appointment.content().trim(), contentReplaced = contentTrimmed.replace(/[\n\r]+/g, "\n\n"), contentTrimmed.split(/[\n\r]+/g).length > 1 ? "\n\n" + contentReplaced : contentReplaced);
+                    s += (contentTrimmed = appointment.content().trim(), contentReplaced = contentTrimmed.replace(/[\n\r]+/g, '\n\n'), contentTrimmed.split(/[\n\r]+/g).length > 1 ? '\n\n' + contentReplaced : contentReplaced);
                   }
                   if (appointment.isDone()) {
                     s = s.dim;
@@ -361,7 +357,7 @@
                   _fn = function(appointment) {
                     var addZero;
                     addZero = function(s) {
-                      if (r.length > 10 && ("" + s).length !== 2) {
+                      if (r.length > 10 && ('' + s).length !== 2) {
                         return "0" + s;
                       } else {
                         return s;
@@ -371,15 +367,15 @@
                     if (appointment.beginBySchoolHour() != null) {
                       s += "[" + (appointment.beginBySchoolHour()) + "] ";
                     } else {
-                      s += "[ ] ";
+                      s += '[ ] ';
                     }
                     if (appointment.fullDay()) {
-                      s += "   Full Day  \t";
+                      s += '   Full Day  \t';
                     } else {
                       s += "" + (moment(appointment.begin()).format("HH:mm")) + " - " + (moment(appointment.end()).format("HH:mm")) + "	";
                     }
                     if (appointment.scrapped()) {
-                      s += "SCRAPPED".cyan;
+                      s += 'SCRAPPED'.cyan;
                     } else {
                       s += appointment.description();
                     }
@@ -408,13 +404,13 @@
               }
               return rl.prompt();
             });
-          case "homework":
+          case 'homework':
             if (params.length === 0) {
               filterAndShow = function(appointments) {
-                var a, appointment, appointmentDays, day, i, index, s, _i, _j, _len, _len1, _ref, _results;
+                var a, appointment, appointmentDays, day, i, index, s, _i, _j, _len, _len1, _ref1, _results;
                 appointment = _.filter(appointments, function(a) {
-                  var _ref;
-                  return !a.fullDay() && (a.content() != null) && (_ref = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref) >= 0);
+                  var _ref1;
+                  return !a.fullDay() && (a.content() != null) && (_ref1 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref1) >= 0);
                 });
                 index = 0;
                 appointmentDays = _(appointments).map(function(a) {
@@ -433,13 +429,13 @@
                   if (!(day.appointments.length > 0)) {
                     continue;
                   }
-                  s = days[moment(day.timestamp).weekday()] + ": ";
-                  _ref = day.appointments;
-                  for (i = _j = 0, _len1 = _ref.length; _j < _len1; i = ++_j) {
-                    a = _ref[i];
+                  s = days[moment(day.timestamp).weekday()] + ': ';
+                  _ref1 = day.appointments;
+                  for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+                    a = _ref1[i];
                     s += "" + (a.classes()[0]) + " [" + (index++) + "]";
                     if (i + 1 !== day.appointments.length) {
-                      s += ", ";
+                      s += ', ';
                     }
                   }
                   if (_.any(day.appointments, function(a) {
@@ -456,21 +452,23 @@
                 filterAndShow(homeworkResults);
                 return rl.prompt();
               } else {
-                return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
+                return m.appointments(new Date(), moment().add(7, 'days').toDate(), false, function(e, r) {
                   if (e != null) {
                     console.log(("Error: " + e.message).red.bold);
                   } else {
-                    filterAndShow(r);
-                    homeworkResults = _.filter(r, function(a) {
-                      var _ref;
-                      return !a.fullDay() && (a.content() != null) && (_ref = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref) >= 0);
-                    });
+                    homeworkResults = _(r).filter(function(a) {
+                      var _ref1;
+                      return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (_ref1 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref1) >= 0);
+                    }).sortBy(function(a) {
+                      return a.begin().getTime();
+                    }).value();
+                    filterAndShow(homeworkResults);
                   }
                   return rl.prompt();
                 });
               }
             } else if (_.isNaN(+params[0])) {
-              console.log("Use homework <index>".red.bold);
+              console.log('Use homework <index>'.red.bold);
               return rl.prompt();
             } else if (homeworkResults != null) {
               appointment = homeworkResults[+params[0]];
@@ -478,32 +476,35 @@
                 rl.prompt();
                 return;
               }
-              s = "";
-              s += days[moment(appointment.begin()).weekday()] + "    ";
-              s += appointment.classes()[0] + "    ";
-              s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+              s = '';
+              s += days[moment(appointment.begin()).weekday()] + '    ';
+              s += appointment.classes()[0] + '    ';
+              s += appointment.content().trim().replace(/[\n\r]+/g, '; ');
               if (appointment.isDone()) {
                 s = s.dim;
               }
               console.log(appointment.infoType() > 1 ? s.red : s);
               return rl.prompt();
             } else {
-              return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
+              return m.appointments(new Date(), moment().add(7, 'days').toDate(), false, function(e, r) {
                 if (e != null) {
                   return console.log(("Error: " + e.message).red.bold);
                 } else {
-                  homeworkResults = _.filter(r, function(a) {
-                    return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
-                  });
+                  homeworkResults = _(r).filter(function(a) {
+                    var _ref1;
+                    return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (_ref1 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref1) >= 0);
+                  }).sortBy(function(a) {
+                    return a.begin().getTime();
+                  }).value();
                   appointment = homeworkResults[+params[0]];
                   if (appointment == null) {
                     rl.prompt();
                     return;
                   }
-                  s = "";
-                  s += days[moment(appointment.begin()).weekday()] + "    ";
-                  s += appointment.classes()[0] + "    ";
-                  s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+                  s = '';
+                  s += days[moment(appointment.begin()).weekday()] + '    ';
+                  s += appointment.classes()[0] + '    ';
+                  s += appointment.content().trim().replace(/[\n\r]+/g, '; ');
                   if (appointment.isDone()) {
                     s = s.dim;
                   }
@@ -513,7 +514,7 @@
               });
             }
             break;
-          case "tests":
+          case 'tests':
             filterAndShow = function(appointments) {
               var first, _i, _len, _results;
               appointments = _.filter(appointments, function(a) {
@@ -524,15 +525,15 @@
               for (_i = 0, _len = appointments.length; _i < _len; _i++) {
                 appointment = appointments[_i];
                 _results.push((function(appointment) {
-                  s = "";
-                  s += days[moment(appointment.begin()).weekday()] + ": ";
-                  s += appointment.classes()[0] + "    ";
-                  s += appointment.content().trim().replace(/[\n\r]+/g, "; ");
+                  s = '';
+                  s += days[moment(appointment.begin()).weekday()] + ': ';
+                  s += appointment.classes()[0] + '    ';
+                  s += appointment.content().trim().replace(/[\n\r]+/g, '; ');
                   if (appointment.isDone()) {
                     s = s.dim;
                   }
                   if (!first) {
-                    console.log("--------------------");
+                    console.log('--------------------');
                   }
                   console.log(s.red);
                   return first = false;
@@ -544,56 +545,59 @@
               filterAndShow(homeworkResults);
               return rl.prompt();
             } else {
-              return m.appointments(new Date(), moment().add(7, "days").toDate(), false, function(e, r) {
+              return m.appointments(new Date(), moment().add(7, 'days').toDate(), false, function(e, r) {
                 if (e != null) {
                   console.log("Error: " + e.message);
                 } else {
-                  filterAndShow(r);
-                  homeworkResults = _.filter(r, function(a) {
-                    return !a.fullDay() && (a.content() != null) && _.contains([1, 2, 3, 4, 5], a.infoType());
-                  });
+                  homeworkResults = _(r).filter(function(a) {
+                    var _ref1;
+                    return !a.fullDay() && (a.content() != null) && (_ref1 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref1) >= 0);
+                  }).sortBy(function(a) {
+                    return a.begin().getTime();
+                  }).value();
+                  filterAndShow(homeworkResults);
                 }
                 return rl.prompt();
               });
             }
             break;
-          case "messages":
+          case 'messages':
             folder = m.inbox();
             if (params[0] != null) {
               limit = +params[0];
             }
             if (_.isNaN(limit)) {
-              if (params[0].toLowerCase() === "new") {
-                editor = (_ref = process.env.EDITOR) != null ? _ref : "vi";
+              if (params[0].toLowerCase() === 'new') {
+                editor = (_ref1 = process.env.EDITOR) != null ? _ref1 : 'vi';
                 file = "" + mahGisterDir + "/MESSAGE_EDIT";
-                fs.writeFileSync(file, "to (seperator: ','): \nsubject: \n\n### Type body under this line###\n\n");
+                fs.writeFileSync(file, 'to (seperator: ', '): \nsubject: \n\n### Type body under this line###\n\n');
                 resp = spawn(editor, [file], {
-                  stdio: "inherit"
+                  stdio: 'inherit'
                 });
                 if (resp.status !== 0 || (resp.error != null)) {
-                  console.log("Error while trying to spawn editor proccess, falling back to ol' VI.");
-                  resp = spawn("vi", [file], {
-                    stdio: "inherit"
+                  console.log('Error while trying to spawn editor proccess, falling back to ol\' VI.');
+                  resp = spawn('vi', [file], {
+                    stdio: 'inherit'
                   });
                 }
                 data = _.reject(fs.readFileSync(file, {
-                  encoding: "utf8"
-                }).split("\n"), function(s) {
-                  return s.indexOf("###") === 0;
+                  encoding: 'utf8'
+                }).split('\n'), function(s) {
+                  return s.indexOf('###') === 0;
                 });
-                namesRaw = data[0].split(":").slice(2).join(":");
+                namesRaw = data[0].split(':').slice(2).join(':');
                 names = (function() {
-                  var _i, _len, _ref1, _results;
-                  _ref1 = namesRaw.split(",");
+                  var _i, _len, _ref2, _results;
+                  _ref2 = namesRaw.split(',');
                   _results = [];
-                  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-                    x = _ref1[_i];
+                  for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+                    x = _ref2[_i];
                     _results.push(x.trim());
                   }
                   return _results;
                 })();
-                subject = data[1].split(":").slice(1).join(":");
-                body = data.slice(2).join("\n");
+                subject = data[1].split(':').slice(1).join(':');
+                body = data.slice(2).join('\n');
                 m.composeAndSendMessage(subject.trim(), body.trim(), names);
                 console.log("Sent message to " + (names.join(', ')) + ".");
                 fs.unlink(file);
@@ -643,21 +647,21 @@
                   return _results;
                 };
                 ask = function() {
-                  return rl.question("msg> ", function(id) {
+                  return rl.question('msg> ', function(id) {
                     var amount, attachments, mail, msg, recipients, sendDate;
                     val = id.trim();
                     if (val.length === 0) {
                       rl.prompt();
                       return;
                     }
-                    if (val.toLowerCase() === "list") {
+                    if (val.toLowerCase() === 'list') {
                       list();
                       ask();
                       return;
                     }
-                    if (val.toLowerCase().indexOf("next") > -1) {
+                    if (val.toLowerCase().indexOf('next') > -1) {
                       amount = 10;
-                      if (val.trim().split(" ").length > 1 && (x = +val.split(" ").slice(1)) > 0) {
+                      if (val.trim().split(' ').length > 1 && (x = +val.split(' ').slice(1)) > 0) {
                         amount = x;
                       }
                       m.inbox().messages(amount, "skip " + limit, function(err, newMessages) {
@@ -672,41 +676,41 @@
                       });
                       return;
                     }
-                    if (val.toLowerCase() === "exit") {
+                    if (val.toLowerCase() === 'exit') {
                       rl.close();
                       return;
                     }
-                    splitted = val.toLowerCase().split(" ");
-                    if (splitted.length === 2 && splitted[0].toLowerCase() === "download") {
+                    splitted = val.toLowerCase().split(' ');
+                    if (splitted.length === 2 && splitted[0].toLowerCase() === 'download') {
                       if (lastMessage != null) {
                         save(lastMessage.attachments()[+splitted[1]]);
                       } else {
-                        console.log("No message provided and none read. Read a message or provide one using download <message id> <attachment id>.".red.bold);
+                        console.log('No message provided and none read. Read a message or provide one using download <message id> <attachment id>.'.red.bold);
                       }
                       ask();
                       return;
-                    } else if (splitted.length === 3 && splitted[0].toLowerCase() === "download") {
+                    } else if (splitted.length === 3 && splitted[0].toLowerCase() === 'download') {
                       save(r[+splitted[1]].attachments()[+splitted[2]]);
                       ask();
                       return;
                     }
-                    if (val.toLowerCase() === "delete") {
+                    if (val.toLowerCase() === 'delete') {
                       if (lastMessage != null) {
                         (msg = lastMessage).move(m.bin());
                         _.remove(r, msg);
                       } else {
-                        console.log("No message provided and none read. Read a message or provide one using delete <message id> <attachment id>.".red.bold);
+                        console.log('No message provided and none read. Read a message or provide one using delete <message id> <attachment id>.'.red.bold);
                       }
                       ask();
                       return;
-                    } else if (splitted.length === 2 && splitted[0].toLowerCase() === "delete") {
+                    } else if (splitted.length === 2 && splitted[0].toLowerCase() === 'delete') {
                       (msg = r[+splitted[1]]).move(m.bin());
                       _.remove(r, msg);
                       ask();
                       return;
                     } else if (_.isNaN(+val)) {
                       if (val.length === 0) {
-                        console.log("Expected command or number.".red.bold);
+                        console.log('Expected command or number.'.red.bold);
                       } else {
                         console.log(("Unknown command: " + val).red.bold);
                       }
@@ -722,11 +726,11 @@
                     sendDate = moment(mail.sendDate());
                     recipients = mail.recipients().slice(0).map(function(p) {
                       return p.description();
-                    }).join(", ");
+                    }).join(', ');
                     attachments = mail.attachments().map(function(a) {
                       return a.name();
-                    }).join(", ");
-                    console.log("");
+                    }).join(', ');
+                    console.log('');
                     console.log(("From: " + (mail.sender().description()) + "\n") + ("Sent: " + days[sendDate.weekday()] + " " + (sendDate.format('DD-M-YYYY HH:mm:ss')) + "\n") + ("To: " + recipients + "\n") + ("Subject: " + (mail.subject()) + "\n") + ("Attachments: " + attachments + "\n\n") + ("\"" + (mail.body()) + "\""));
                     lastMessage = mail;
                     return ask();
@@ -736,27 +740,27 @@
                 return ask();
               }
             });
-          case "done":
+          case 'done':
             if (params.length < 2) {
-              console.log("Use done <day> <appointmentId>");
+              console.log('Use done <day> <appointmentId>');
               rl.prompt();
               return;
             }
             inf = params[0];
             date = ((function() {
-              var _ref1;
-              if ((val = (_ref1 = /^-?\d+$/.exec(inf)) != null ? _ref1[0] : void 0) != null) {
-                return new moment().add(val, "days");
+              var _ref2;
+              if ((val = (_ref2 = /^-?\d+$/.exec(inf)) != null ? _ref2[0] : void 0) != null) {
+                return new moment().add(val, 'days');
               } else if (_.contains(all, inf.toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
-                  x.add(1, "days");
+                  x.add(1, 'days');
                 }
                 return x;
-              } else if (inf[0] === "-" && _.contains(all, inf.slice(1).toLowerCase())) {
+              } else if (inf[0] === '-' && _.contains(all, inf.slice(1).toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.slice(1).toLowerCase() && shortDays[x.weekday()] !== inf.slice(1).toLowerCase()) {
-                  x.add(-1, "days");
+                  x.add(-1, 'days');
                 }
                 return x;
               } else {
@@ -776,9 +780,9 @@
                 return rl.prompt();
               }
             });
-          case "exit":
+          case 'exit':
             return rl.close();
-          case "":
+          case '':
             return rl.prompt();
           default:
             return showHelp();
@@ -787,7 +791,7 @@
     });
   };
 
-  if ((val = storage.getItem("user")) != null) {
+  if ((val = storage.getItem('user')) != null) {
     main(val);
   } else {
     userInfo = {
@@ -807,7 +811,7 @@
               school = r[i];
               console.log("[" + i + "] " + school.name);
             }
-            return rl.question("What's your school? ", function(a) {
+            return rl.question("What's your school? (0-" + (r.length - 1) + ")", function(a) {
               userInfo.school = r[+a];
               return cb();
             });
@@ -823,7 +827,7 @@
         return rl.question("What's your password? ", function(pass) {
           var err, x;
           err = function() {
-            console.log("Wrong username and/or password. Or other error.");
+            console.log('Wrong username and/or password. Or other error.');
             return askUser();
           };
           x = setTimeout((function() {
@@ -836,7 +840,7 @@
             } else {
               userInfo.userName = name;
               userInfo.password = pass;
-              storage.setItem("user", userInfo);
+              storage.setItem('user', userInfo);
               return main(userInfo, this);
             }
           });
