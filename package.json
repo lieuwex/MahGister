@@ -11,7 +11,7 @@
   },
   "licenses": [
     {
-      "type": "GPLv3",
+      "type": "GPL-3.0",
       "url": "http://github.com/lieuwex/MahGister/blob/master/LICENSE"
     }
   ],
@@ -25,11 +25,11 @@
     "mahgister": "bin/mahgister"
   },
   "author": "Lieuwe Rooijakkers <lieuwerooijakkers@gmail.com> (http://lieuwex.github.io/)",
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "dependencies": {
     "colors": "^1.0.3",
     "lodash": "^2.4.1",
-    "magister.js": "1.8.3",
+    "magister.js": "1.14.0",
     "moment": "^2.8.3",
     "node-persist": "0.0.2"
   },
