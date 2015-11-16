@@ -326,7 +326,7 @@
                   if ((val = appointment.classes()[0]) != null) {
                     s += val + ' ';
                     if (appointment.location() != null) {
-                      s += '#{appointment.location()}    ';
+                      s += "" + (appointment.location()) + "    ";
                     }
                   } else {
                     s += appointment.description() + '    ';

@@ -280,7 +280,7 @@ main = (val, magister) ->
 								if (val = appointment.classes()[0])?
 									s += val + ' '
 									if appointment.location()?
-										s += '#{appointment.location()}    '
+										s += "#{appointment.location()}    "
 								else
 									s += appointment.description() + '    '
 								if appointment.scrapped()
