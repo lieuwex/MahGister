@@ -665,7 +665,7 @@ else
 					askSchool cb
 				else if r.length > 1
 					console.log "[#{i}] #{school.name}" for school, i in r
-					rl.question "What's your school? (0-#{r.length - 1})", (a) ->
+					rl.question "What's your school? (0-#{r.length - 1}) ", (a) ->
 						userInfo.school = r[+a]
 						cb()
 				else
