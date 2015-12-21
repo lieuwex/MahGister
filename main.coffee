@@ -208,7 +208,11 @@ rl.on 'close', -> process.exit 0
 if _.contains ['--help', '-h'], _.last(process.argv).toLowerCase() then showHelp yes
 
 main = (val, magister) ->
-	magister ?= new Magister(val.school, val.userName, val.password)
+	magister ?= new Magister
+		school: val.school
+		username: val.username
+		password: val.password ? 'kaas'
+		sessionId: val.sessionId
 
 	magister.ready (err) ->
 		if err?
@@ -654,7 +658,6 @@ if (val = storage.getItem('user'))? then main val
 else
 	userInfo =
 		school: null
-		userName: null
 		password: null
 
 	askSchool = (cb) ->
@@ -684,8 +687,8 @@ else
 
 				if err then err()
 				else
-					userInfo.userName = name
-					userInfo.password = pass
+					userInfo.username = name
+					userInfo.sessionId = @_sessionId
 
 					storage.setItem 'user', userInfo
 					main userInfo, this
