@@ -5,7 +5,7 @@ A tiny CLI to Magister, using [Magister.js](http://simplygits.github.io/Magister
 
 Build with `grunt`.
 
-Install with `npm install -g mahgister`.
+Install with `npm install -g mahgister` (if that doesn't work, try `sudo npm install -g mahgister`). 
 
 Show commands with `MahGister --help`.
 
