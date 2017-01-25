@@ -21,8 +21,8 @@
  */
 
 (function() {
-  var Magister, MagisterSchool, all, askSchool, askUser, clearConsole, colors, commands, days, fs, getDate, mahGisterDir, main, moment, readline, rl, shortDays, showHelp, spawn, storage, userInfo, val, _, _ref,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var Magister, MagisterSchool, _, all, askSchool, askUser, attachmentsDir, clearConsole, colors, commands, days, fs, getDate, mahGisterDir, main, moment, readline, ref, ref1, rl, shortDays, showHelp, spawn, storage, storageDir, userInfo, val,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   readline = require('readline');
 
@@ -38,9 +38,13 @@
 
   spawn = require('child_process').spawnSync;
 
-  _ref = require('magister.js'), Magister = _ref.Magister, MagisterSchool = _ref.MagisterSchool;
+  ref = require('magister.js'), Magister = ref.Magister, MagisterSchool = ref.MagisterSchool;
 
-  mahGisterDir = "" + (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister";
+  mahGisterDir = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.MahGister";
+
+  storageDir = mahGisterDir + "/storage";
+
+  attachmentsDir = mahGisterDir + "/attachments";
 
   days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
@@ -57,17 +61,17 @@
   };
 
   showHelp = function(exit) {
-    var cent, command, key, param, repeat, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
+    var cent, command, j, key, len, len1, n, param, ref1, ref2, ref3, repeat;
     if (exit == null) {
       exit = false;
     }
     repeat = function(org, length) {
-      var i, res, _i, _ref1;
+      var i, j, ref1, res;
       if (length == null) {
         length = process.stdout.columns;
       }
       res = '';
-      for (i = _i = 0, _ref1 = Math.floor(length / org.length); 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = j = 0, ref1 = Math.floor(length / org.length); 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
         res += org;
       }
       return res;
@@ -82,14 +86,14 @@
     console.log(cent('MahGister').bold.red);
     console.log(cent('(c) 2015 Lieuwe Rooijakkers'));
     console.log(repeat('-'));
-    _ref1 = _(commands).keys().sort().value();
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      key = _ref1[_i];
+    ref1 = _(commands).keys().sort().value();
+    for (j = 0, len = ref1.length; j < len; j++) {
+      key = ref1[j];
       command = commands[key];
       console.log(key.bold + (": " + command.description));
-      _ref3 = (_ref2 = command.params) != null ? _ref2 : [];
-      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-        param = _ref3[_j];
+      ref3 = (ref2 = command.params) != null ? ref2 : [];
+      for (n = 0, len1 = ref3.length; n < len1; n++) {
+        param = ref3[n];
         console.log('');
         console.log('    ' + param.name.underline + (" [" + param.type + "]: " + param.description) + ((param.optional == null) || param.optional === false ? "" : param.optional === true ? " (optional)".red : (" (default: " + param.optional + ")").red));
         if (param.example != null) {
@@ -231,30 +235,28 @@
   });
 
   storage.initSync({
-    dir: mahGisterDir
+    dir: storageDir
   });
 
-  fs.exists('./attachments', function(r) {
-    if (!r) {
-      return fs.mkdir('attachments');
-    }
-  });
+  if (!fs.existsSync(attachmentsDir)) {
+    fs.mkdirSync(attachmentsDir);
+  }
 
   rl.on('close', function() {
     return process.exit(0);
   });
 
-  if (_.contains(['--help', '-h'], _.last(process.argv).toLowerCase())) {
+  if ((ref1 = _.last(process.argv).toLowerCase()) === '--help' || ref1 === '-h') {
     showHelp(true);
   }
 
   main = function(val, magister) {
-    var _ref1;
+    var ref2;
     if (magister == null) {
       magister = new Magister({
         school: val.school,
         username: val.username,
-        password: (_ref1 = val.password) != null ? _ref1 : 'kaas',
+        password: (ref2 = val.password) != null ? ref2 : 'kaas',
         sessionId: val.sessionId
       });
     }
@@ -270,15 +272,15 @@
       console.log("Welcome, " + (m.profileInfo().firstName()));
       rl.prompt();
       return rl.on('line', function(l) {
-        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, resp, s, splitted, subject, x, _ref2;
+        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, ref3, resp, s, splitted, subject, x;
         splitted = l.trim().split(' ');
         params = splitted.slice(1);
         switch (splitted[0].toLowerCase()) {
           case 'who':
             if (m.profileInfo().namePrefix() != null) {
-              console.log("" + (m.profileInfo().firstName()) + " " + (m.profileInfo().namePrefix()) + " " + (m.profileInfo().lastName()));
+              console.log((m.profileInfo().firstName()) + " " + (m.profileInfo().namePrefix()) + " " + (m.profileInfo().lastName()));
             } else {
-              console.log("" + (m.profileInfo().firstName()) + " " + (m.profileInfo().lastName()));
+              console.log((m.profileInfo().firstName()) + " " + (m.profileInfo().lastName()));
             }
             return rl.prompt();
           case 'clear':
@@ -291,8 +293,8 @@
             }
             id = params[1];
             date = ((function() {
-              var _ref2;
-              if ((val = (_ref2 = /^-?\d+$/.exec(inf)) != null ? _ref2[0] : void 0) != null) {
+              var ref3;
+              if ((val = (ref3 = /^-?\d+$/.exec(inf)) != null ? ref3[0] : void 0) != null) {
                 return new moment().add(+val, 'days');
               } else if (_.contains(all, inf.toLowerCase())) {
                 x = moment();
@@ -316,7 +318,7 @@
               return;
             }
             return m.appointments(date, false, function(e, r) {
-              var appointment, contentReplaced, contentTrimmed, i, s, _fn, _i, _len;
+              var appointment, contentReplaced, contentTrimmed, fn, i, j, len, s;
               if (e != null) {
                 console.log("Error: " + e.message);
               } else {
@@ -332,7 +334,7 @@
                   if ((val = appointment.classes()[0]) != null) {
                     s += val + ' ';
                     if (appointment.location() != null) {
-                      s += "" + (appointment.location()) + "    ";
+                      s += (appointment.location()) + "    ";
                     }
                   } else {
                     s += appointment.description() + '    ';
@@ -360,7 +362,7 @@
                   })()));
                 } else {
                   console.log(("Appointments for " + (moment(date).format("dddd D MMMM YYYY")) + "\n").underline);
-                  _fn = function(appointment) {
+                  fn = function(appointment) {
                     var addZero;
                     addZero = function(s) {
                       if (r.length > 10 && ('' + s).length !== 2) {
@@ -369,7 +371,7 @@
                         return s;
                       }
                     };
-                    s = "" + (addZero(i)) + ": ";
+                    s = (addZero(i)) + ": ";
                     if (appointment.beginBySchoolHour() != null) {
                       s += "[" + (appointment.beginBySchoolHour()) + "] ";
                     } else {
@@ -378,7 +380,7 @@
                     if (appointment.fullDay()) {
                       s += '   Full Day  \t';
                     } else {
-                      s += "" + (moment(appointment.begin()).format("HH:mm")) + " - " + (moment(appointment.end()).format("HH:mm")) + "	";
+                      s += (moment(appointment.begin()).format("HH:mm")) + " - " + (moment(appointment.end()).format("HH:mm")) + "	";
                     }
                     if (appointment.scrapped()) {
                       s += 'SCRAPPED'.cyan;
@@ -402,9 +404,9 @@
                       }
                     })()));
                   };
-                  for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
+                  for (i = j = 0, len = r.length; j < len; i = ++j) {
                     appointment = r[i];
-                    _fn(appointment);
+                    fn(appointment);
                   }
                 }
               }
@@ -413,10 +415,10 @@
           case 'homework':
             if (params.length === 0) {
               filterAndShow = function(appointments) {
-                var a, appointment, appointmentDays, day, i, index, s, _i, _j, _len, _len1, _ref2, _results;
+                var a, appointment, appointmentDays, day, i, index, j, len, len1, n, ref3, results, s;
                 appointment = _.filter(appointments, function(a) {
-                  var _ref2;
-                  return !a.fullDay() && (a.content() != null) && (_ref2 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref2) >= 0);
+                  var ref3;
+                  return !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
                 });
                 index = 0;
                 appointmentDays = _(appointments).map(function(a) {
@@ -429,17 +431,17 @@
                 }).uniq(function(a) {
                   return a.timestamp;
                 }).value();
-                _results = [];
-                for (_i = 0, _len = appointmentDays.length; _i < _len; _i++) {
-                  day = appointmentDays[_i];
+                results = [];
+                for (j = 0, len = appointmentDays.length; j < len; j++) {
+                  day = appointmentDays[j];
                   if (!(day.appointments.length > 0)) {
                     continue;
                   }
                   s = days[moment(day.timestamp).weekday()] + ': ';
-                  _ref2 = day.appointments;
-                  for (i = _j = 0, _len1 = _ref2.length; _j < _len1; i = ++_j) {
-                    a = _ref2[i];
-                    s += "" + (a.classes()[0]) + " [" + (index++) + "]";
+                  ref3 = day.appointments;
+                  for (i = n = 0, len1 = ref3.length; n < len1; i = ++n) {
+                    a = ref3[i];
+                    s += (a.classes()[0]) + " [" + (index++) + "]";
                     if (i + 1 !== day.appointments.length) {
                       s += ', ';
                     }
@@ -447,12 +449,12 @@
                   if (_.any(day.appointments, function(a) {
                     return a.infoType() > 1;
                   })) {
-                    _results.push(console.log(s.red));
+                    results.push(console.log(s.red));
                   } else {
-                    _results.push(console.log(s));
+                    results.push(console.log(s));
                   }
                 }
-                return _results;
+                return results;
               };
               if (homeworkResults != null) {
                 filterAndShow(homeworkResults);
@@ -463,8 +465,8 @@
                     console.log(("Error: " + e.message).red.bold);
                   } else {
                     homeworkResults = _(r).filter(function(a) {
-                      var _ref2;
-                      return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (_ref2 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref2) >= 0);
+                      var ref3;
+                      return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
                     }).sortBy(function(a) {
                       return a.begin().getTime();
                     }).value();
@@ -497,8 +499,8 @@
                   return console.log(("Error: " + e.message).red.bold);
                 } else {
                   homeworkResults = _(r).filter(function(a) {
-                    var _ref2;
-                    return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (_ref2 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref2) >= 0);
+                    var ref3;
+                    return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
                   }).sortBy(function(a) {
                     return a.begin().getTime();
                   }).value();
@@ -522,15 +524,15 @@
             break;
           case 'tests':
             filterAndShow = function(appointments) {
-              var first, _i, _len, _results;
+              var first, j, len, results;
               appointments = _.filter(appointments, function(a) {
                 return !a.fullDay() && (a.content() != null) && a.infoType() > 1;
               });
               first = true;
-              _results = [];
-              for (_i = 0, _len = appointments.length; _i < _len; _i++) {
-                appointment = appointments[_i];
-                _results.push((function(appointment) {
+              results = [];
+              for (j = 0, len = appointments.length; j < len; j++) {
+                appointment = appointments[j];
+                results.push((function(appointment) {
                   s = '';
                   s += days[moment(appointment.begin()).weekday()] + ': ';
                   s += appointment.classes()[0] + '    ';
@@ -545,7 +547,7 @@
                   return first = false;
                 })(appointment));
               }
-              return _results;
+              return results;
             };
             if (homeworkResults != null) {
               filterAndShow(homeworkResults);
@@ -556,8 +558,8 @@
                   console.log("Error: " + e.message);
                 } else {
                   homeworkResults = _(r).filter(function(a) {
-                    var _ref2;
-                    return !a.fullDay() && (a.content() != null) && (_ref2 = a.infoType(), __indexOf.call([1, 2, 3, 4, 5], _ref2) >= 0);
+                    var ref3;
+                    return !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
                   }).sortBy(function(a) {
                     return a.begin().getTime();
                   }).value();
@@ -574,9 +576,9 @@
             }
             if (_.isNaN(limit)) {
               if (params[0].toLowerCase() === 'new') {
-                editor = (_ref2 = process.env.EDITOR) != null ? _ref2 : 'vi';
-                file = "" + mahGisterDir + "/MESSAGE_EDIT";
-                fs.writeFileSync(file, 'to (seperator: ', '): \nsubject: \n\n### Type body under this line###\n\n');
+                editor = (ref3 = process.env.EDITOR) != null ? ref3 : 'vi';
+                file = mahGisterDir + "/MESSAGE_EDIT";
+                fs.writeFileSync(file, 'to (seperator: \',\'): \nsubject: \n\n### Type body under this line###\n\n');
                 resp = spawn(editor, [file], {
                   stdio: 'inherit'
                 });
@@ -593,14 +595,14 @@
                 });
                 namesRaw = data[0].split(':').slice(2).join(':');
                 names = (function() {
-                  var _i, _len, _ref3, _results;
-                  _ref3 = namesRaw.split(',');
-                  _results = [];
-                  for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-                    x = _ref3[_i];
-                    _results.push(x.trim());
+                  var j, len, ref4, results;
+                  ref4 = namesRaw.split(',');
+                  results = [];
+                  for (j = 0, len = ref4.length; j < len; j++) {
+                    x = ref4[j];
+                    results.push(x.trim());
                   }
-                  return _results;
+                  return results;
                 })();
                 subject = data[1].split(':').slice(1).join(':');
                 body = data.slice(2).join('\n');
@@ -629,7 +631,7 @@
                         name: 'u'
                       });
                       console.log("Downloaded " + (attachment.name()));
-                      fs.writeFile("./attachments/" + (attachment.name()), r, function(e) {
+                      fs.writeFile(attachmentsDir + "/" + (attachment.name()), r, function(e) {
                         if (e != null) {
                           throw e;
                         }
@@ -639,18 +641,18 @@
                   });
                 };
                 list = function() {
-                  var i, msg, _i, _len, _results;
-                  _results = [];
-                  for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
+                  var i, j, len, msg, results;
+                  results = [];
+                  for (i = j = 0, len = r.length; j < len; i = ++j) {
                     msg = r[i];
-                    _results.push((function(msg) {
+                    results.push((function(msg) {
                       s = "[" + i + "] ";
-                      s += "" + (msg.sender().description()) + " ";
+                      s += (msg.sender().description()) + " ";
                       s += msg.subject();
                       return console.log(s);
                     })(msg));
                   }
-                  return _results;
+                  return results;
                 };
                 ask = function() {
                   return rl.question('msg> ', function(id) {
@@ -754,8 +756,8 @@
             }
             inf = params[0];
             date = ((function() {
-              var _ref3;
-              if ((val = (_ref3 = /^-?\d+$/.exec(inf)) != null ? _ref3[0] : void 0) != null) {
+              var ref4;
+              if ((val = (ref4 = /^-?\d+$/.exec(inf)) != null ? ref4[0] : void 0) != null) {
                 return new moment().add(val, 'days');
               } else if (_.contains(all, inf.toLowerCase())) {
                 x = moment();
@@ -797,22 +799,23 @@
     });
   };
 
-  if ((val = storage.getItem('user')) != null) {
+  if ((val = storage.getItemSync('user')) != null) {
     main(val);
   } else {
     userInfo = {
       school: null,
-      password: null
+      username: null,
+      sessionId: null
     };
     askSchool = function(cb) {
       return rl.question("What's your school name? ", function(a) {
         return MagisterSchool.getSchools(a, function(e, r) {
-          var i, school, _i, _len;
+          var i, j, len, school;
           if ((e != null) || r.length === 0) {
             console.log("No schools found with query: " + a);
             return askSchool(cb);
           } else if (r.length > 1) {
-            for (i = _i = 0, _len = r.length; _i < _len; i = ++_i) {
+            for (i = j = 0, len = r.length; j < len; i = ++j) {
               school = r[i];
               console.log("[" + i + "] " + school.name);
             }
@@ -845,7 +848,7 @@
             } else {
               userInfo.username = name;
               userInfo.sessionId = this._sessionId;
-              storage.setItem('user', userInfo);
+              storage.setItemSync('user', userInfo);
               return main(userInfo, this);
             }
           });
