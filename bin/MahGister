@@ -296,13 +296,13 @@
               var ref3;
               if ((val = (ref3 = /^-?\d+$/.exec(inf)) != null ? ref3[0] : void 0) != null) {
                 return new moment().add(+val, 'days');
-              } else if (_.contains(all, inf.toLowerCase())) {
+              } else if (_.includes(all, inf.toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
                   x.add(1, 'days');
                 }
                 return x;
-              } else if (inf[0] === '-' && _.contains(all, inf.slice(1).toLowerCase())) {
+              } else if (inf[0] === '-' && _.includes(all, inf.slice(1).toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.slice(1).toLowerCase() && shortDays[x.weekday()] !== inf.slice(1).toLowerCase()) {
                   x.add(-1, 'days');
@@ -446,7 +446,7 @@
                       s += ', ';
                     }
                   }
-                  if (_.any(day.appointments, function(a) {
+                  if (_.some(day.appointments, function(a) {
                     return a.infoType() > 1;
                   })) {
                     results.push(console.log(s.red));
@@ -616,7 +616,9 @@
                 limit = params[1] != null ? +params[1] : null;
               }
             }
-            return folder.messages(limit, function(e, r) {
+            return folder.messages({
+              limit: limit
+            }, function(e, r) {
               var ask, list, save;
               if (e != null) {
                 return console.log(("Error: " + e.message).red.bold);
@@ -672,7 +674,10 @@
                       if (val.trim().split(' ').length > 1 && (x = +val.split(' ').slice(1)) > 0) {
                         amount = x;
                       }
-                      m.inbox().messages(amount, "skip " + limit, function(err, newMessages) {
+                      m.inbox().messages({
+                        limit: amount,
+                        skip: limit
+                      }, function(err, newMessages) {
                         if (err != null) {
                           console.log(("Error while fetching " + amount + " new messages.").red.bold);
                         } else {
@@ -759,13 +764,13 @@
               var ref4;
               if ((val = (ref4 = /^-?\d+$/.exec(inf)) != null ? ref4[0] : void 0) != null) {
                 return new moment().add(val, 'days');
-              } else if (_.contains(all, inf.toLowerCase())) {
+              } else if (_.includes(all, inf.toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.toLowerCase() && shortDays[x.weekday()] !== inf.toLowerCase()) {
                   x.add(1, 'days');
                 }
                 return x;
-              } else if (inf[0] === '-' && _.contains(all, inf.slice(1).toLowerCase())) {
+              } else if (inf[0] === '-' && _.includes(all, inf.slice(1).toLowerCase())) {
                 x = moment();
                 while (days[x.weekday()] !== inf.slice(1).toLowerCase() && shortDays[x.weekday()] !== inf.slice(1).toLowerCase()) {
                   x.add(-1, 'days');

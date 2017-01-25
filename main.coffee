@@ -252,13 +252,13 @@ main = (val, magister) ->
 						if (val = /^-?\d+$/.exec(inf)?[0])?
 							new moment().add +val, 'days'
 
-						else if _.contains all, inf.toLowerCase()
+						else if _.includes all, inf.toLowerCase()
 							x = moment()
 							while days[x.weekday()] isnt inf.toLowerCase() and shortDays[x.weekday()] isnt inf.toLowerCase()
 								x.add 1, 'days'
 							x
 
-						else if inf[0] is '-' and _.contains all, inf[1..].toLowerCase()
+						else if inf[0] is '-' and _.includes all, inf[1..].toLowerCase()
 							x = moment()
 							while days[x.weekday()] isnt inf[1..].toLowerCase() and shortDays[x.weekday()] isnt inf[1..].toLowerCase()
 								x.add -1, 'days'
@@ -362,7 +362,7 @@ main = (val, magister) ->
 									s += "#{a.classes()[0]} [#{index++}]"
 									s += ', ' if i + 1 isnt day.appointments.length
 
-								if _.any(day.appointments, (a) -> a.infoType() > 1)
+								if _.some(day.appointments, (a) -> a.infoType() > 1)
 									console.log s.red
 								else
 									console.log s
@@ -497,7 +497,7 @@ main = (val, magister) ->
 							folder = m.messageFolders(params[0])[0]
 							limit = if params[1]? then +params[1] else null
 
-					folder.messages limit, (e, r) ->
+					folder.messages { limit }, (e, r) ->
 						if e? then console.log "Error: #{e.message}".red.bold
 						else
 							save = (attachment) ->
@@ -535,7 +535,10 @@ main = (val, magister) ->
 										if val.trim().split(' ').length > 1 and (x = +val.split(' ')[1..]) > 0
 											amount = x
 
-										m.inbox().messages amount, "skip #{limit}", (err, newMessages) ->
+										m.inbox().messages {
+											limit: amount
+											skip: limit
+										}, (err, newMessages) ->
 											if err?
 												console.log "Error while fetching #{amount} new messages.".red.bold
 											else
@@ -625,13 +628,13 @@ main = (val, magister) ->
 						if (val = /^-?\d+$/.exec(inf)?[0])?
 							new moment().add val, 'days'
 
-						else if _.contains all, inf.toLowerCase()
+						else if _.includes all, inf.toLowerCase()
 							x = moment()
 							while days[x.weekday()] isnt inf.toLowerCase() and shortDays[x.weekday()] isnt inf.toLowerCase()
 								x.add 1, 'days'
 							x
 
-						else if inf[0] is '-' and _.contains all, inf[1..].toLowerCase()
+						else if inf[0] is '-' and _.includes all, inf[1..].toLowerCase()
 							x = moment()
 							while days[x.weekday()] isnt inf[1..].toLowerCase() and shortDays[x.weekday()] isnt inf[1..].toLowerCase()
 								x.add -1, 'days'
