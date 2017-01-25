@@ -470,7 +470,7 @@ main = (val, magister) ->
 						if params[0].toLowerCase() is 'new'
 							editor = process.env.EDITOR ? 'vi'
 							file = "#{mahGisterDir}/MESSAGE_EDIT"
-							fs.writeFileSync file, 'to (seperator: ','): \nsubject: \n\n### Type body under this line###\n\n'
+							fs.writeFileSync file, 'to (seperator: \',\'): \nsubject: \n\n### Type body under this line###\n\n'
 
 							resp = spawn editor, [file], stdio: 'inherit'
 							if resp.status isnt 0 or resp.error?
