@@ -29,7 +29,9 @@ fs = require 'fs'
 spawn = require('child_process').spawnSync
 { Magister, MagisterSchool } = require 'magister.js'
 
-mahGisterDir = "#{process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE}/.MahGister"
+mahGisterDir = "#{process.env.HOME or process.env.HOMEPATH or process.env.USERPROFILE}/.MahGister"
+storageDir = "#{mahGisterDir}/storage"
+attachmentsDir = "#{mahGisterDir}/attachments"
 
 days = [
 	'sunday'
@@ -199,13 +201,15 @@ rl = readline.createInterface
 		[ filtered, s ]
 
 storage.initSync
-	dir: mahGisterDir
+	dir: storageDir
 
-fs.exists './attachments', (r) -> fs.mkdir('attachments') unless r
+unless fs.existsSync attachmentsDir
+	fs.mkdirSync attachmentsDir
 
 rl.on 'close', -> process.exit 0
 
-if _.contains ['--help', '-h'], _.last(process.argv).toLowerCase() then showHelp yes
+if _.last(process.argv).toLowerCase() in [ '--help', '-h' ]
+	showHelp yes
 
 main = (val, magister) ->
 	magister ?= new Magister
@@ -502,7 +506,7 @@ main = (val, magister) ->
 									else
 										rl.write null, {ctrl: true, name: 'u'}
 										console.log "Downloaded #{attachment.name()}"
-										fs.writeFile "./attachments/#{attachment.name()}", r, (e) -> throw e if e?
+										fs.writeFile "#{attachmentsDir}/#{attachment.name()}", r, (e) -> throw e if e?
 
 									ask()
 
@@ -654,11 +658,12 @@ main = (val, magister) ->
 
 				else showHelp()
 
-if (val = storage.getItem('user'))? then main val
+if (val = storage.getItemSync('user'))? then main val
 else
 	userInfo =
 		school: null
-		password: null
+		username: null
+		sessionId: null
 
 	askSchool = (cb) ->
 		rl.question "What's your school name? ", (a) ->
@@ -690,7 +695,7 @@ else
 					userInfo.username = name
 					userInfo.sessionId = @_sessionId
 
-					storage.setItem 'user', userInfo
+					storage.setItemSync 'user', userInfo
 					main userInfo, this
 
 	askSchool askUser
