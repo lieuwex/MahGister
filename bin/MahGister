@@ -251,13 +251,11 @@
   }
 
   main = function(val, magister) {
-    var ref2;
     if (magister == null) {
       magister = new Magister({
         school: val.school,
         username: val.username,
-        password: (ref2 = val.password) != null ? ref2 : 'kaas',
-        sessionId: val.sessionId
+        password: val.password
       });
     }
     return magister.ready(function(err) {
@@ -272,7 +270,7 @@
       console.log("Welcome, " + (m.profileInfo().firstName()));
       rl.prompt();
       return rl.on('line', function(l) {
-        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, ref3, resp, s, splitted, subject, x;
+        var appointment, body, data, date, editor, file, filterAndShow, folder, id, inf, limit, names, namesRaw, params, ref2, resp, s, splitted, subject, x;
         splitted = l.trim().split(' ');
         params = splitted.slice(1);
         switch (splitted[0].toLowerCase()) {
@@ -293,8 +291,8 @@
             }
             id = params[1];
             date = ((function() {
-              var ref3;
-              if ((val = (ref3 = /^-?\d+$/.exec(inf)) != null ? ref3[0] : void 0) != null) {
+              var ref2;
+              if ((val = (ref2 = /^-?\d+$/.exec(inf)) != null ? ref2[0] : void 0) != null) {
                 return new moment().add(+val, 'days');
               } else if (_.includes(all, inf.toLowerCase())) {
                 x = moment();
@@ -415,10 +413,10 @@
           case 'homework':
             if (params.length === 0) {
               filterAndShow = function(appointments) {
-                var a, appointment, appointmentDays, day, i, index, j, len, len1, n, ref3, results, s;
+                var a, appointment, appointmentDays, day, i, index, j, len, len1, n, ref2, results, s;
                 appointment = _.filter(appointments, function(a) {
-                  var ref3;
-                  return !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
+                  var ref2;
+                  return !a.fullDay() && (a.content() != null) && (ref2 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref2) >= 0);
                 });
                 index = 0;
                 appointmentDays = _(appointments).map(function(a) {
@@ -438,9 +436,9 @@
                     continue;
                   }
                   s = days[moment(day.timestamp).weekday()] + ': ';
-                  ref3 = day.appointments;
-                  for (i = n = 0, len1 = ref3.length; n < len1; i = ++n) {
-                    a = ref3[i];
+                  ref2 = day.appointments;
+                  for (i = n = 0, len1 = ref2.length; n < len1; i = ++n) {
+                    a = ref2[i];
                     s += (a.classes()[0]) + " [" + (index++) + "]";
                     if (i + 1 !== day.appointments.length) {
                       s += ', ';
@@ -465,8 +463,8 @@
                     console.log(("Error: " + e.message).red.bold);
                   } else {
                     homeworkResults = _(r).filter(function(a) {
-                      var ref3;
-                      return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
+                      var ref2;
+                      return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (ref2 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref2) >= 0);
                     }).sortBy(function(a) {
                       return a.begin().getTime();
                     }).value();
@@ -499,8 +497,8 @@
                   return console.log(("Error: " + e.message).red.bold);
                 } else {
                   homeworkResults = _(r).filter(function(a) {
-                    var ref3;
-                    return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
+                    var ref2;
+                    return a.begin().getTime() > _.now() && !a.fullDay() && (a.content() != null) && (ref2 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref2) >= 0);
                   }).sortBy(function(a) {
                     return a.begin().getTime();
                   }).value();
@@ -558,8 +556,8 @@
                   console.log("Error: " + e.message);
                 } else {
                   homeworkResults = _(r).filter(function(a) {
-                    var ref3;
-                    return !a.fullDay() && (a.content() != null) && (ref3 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref3) >= 0);
+                    var ref2;
+                    return !a.fullDay() && (a.content() != null) && (ref2 = a.infoType(), indexOf.call([1, 2, 3, 4, 5], ref2) >= 0);
                   }).sortBy(function(a) {
                     return a.begin().getTime();
                   }).value();
@@ -576,7 +574,7 @@
             }
             if (_.isNaN(limit)) {
               if (params[0].toLowerCase() === 'new') {
-                editor = (ref3 = process.env.EDITOR) != null ? ref3 : 'vi';
+                editor = (ref2 = process.env.EDITOR) != null ? ref2 : 'vi';
                 file = mahGisterDir + "/MESSAGE_EDIT";
                 fs.writeFileSync(file, 'to (seperator: \',\'): \nsubject: \n\n### Type body under this line###\n\n');
                 resp = spawn(editor, [file], {
@@ -595,11 +593,11 @@
                 });
                 namesRaw = data[0].split(':').slice(2).join(':');
                 names = (function() {
-                  var j, len, ref4, results;
-                  ref4 = namesRaw.split(',');
+                  var j, len, ref3, results;
+                  ref3 = namesRaw.split(',');
                   results = [];
-                  for (j = 0, len = ref4.length; j < len; j++) {
-                    x = ref4[j];
+                  for (j = 0, len = ref3.length; j < len; j++) {
+                    x = ref3[j];
                     results.push(x.trim());
                   }
                   return results;
@@ -761,8 +759,8 @@
             }
             inf = params[0];
             date = ((function() {
-              var ref4;
-              if ((val = (ref4 = /^-?\d+$/.exec(inf)) != null ? ref4[0] : void 0) != null) {
+              var ref3;
+              if ((val = (ref3 = /^-?\d+$/.exec(inf)) != null ? ref3[0] : void 0) != null) {
                 return new moment().add(val, 'days');
               } else if (_.includes(all, inf.toLowerCase())) {
                 x = moment();
@@ -810,7 +808,7 @@
     userInfo = {
       school: null,
       username: null,
-      sessionId: null
+      password: null
     };
     askSchool = function(cb) {
       return rl.question("What's your school name? ", function(a) {
@@ -852,7 +850,7 @@
               return err();
             } else {
               userInfo.username = name;
-              userInfo.sessionId = this._sessionId;
+              userInfo.password = pass;
               storage.setItemSync('user', userInfo);
               return main(userInfo, this);
             }
