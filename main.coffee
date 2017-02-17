@@ -215,8 +215,7 @@ main = (val, magister) ->
 	magister ?= new Magister
 		school: val.school
 		username: val.username
-		password: val.password ? 'kaas'
-		sessionId: val.sessionId
+		password: val.password
 
 	magister.ready (err) ->
 		if err?
@@ -666,7 +665,7 @@ else
 	userInfo =
 		school: null
 		username: null
-		sessionId: null
+		password: null
 
 	askSchool = (cb) ->
 		rl.question "What's your school name? ", (a) ->
@@ -696,7 +695,7 @@ else
 				if err then err()
 				else
 					userInfo.username = name
-					userInfo.sessionId = @_sessionId
+					userInfo.password = pass
 
 					storage.setItemSync 'user', userInfo
 					main userInfo, this
