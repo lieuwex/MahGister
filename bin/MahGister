@@ -85,6 +85,7 @@
     console.log(repeat('-'));
     console.log(cent('MahGister').bold.red);
     console.log(cent('(c) 2015 Lieuwe Rooijakkers'));
+    console.log(cent('Licensed under the GPLv3 license.'));
     console.log(repeat('-'));
     ref1 = _(commands).keys().sort().value();
     for (j = 0, len = ref1.length; j < len; j++) {
@@ -836,18 +837,18 @@
     askUser = function() {
       return rl.question("What's your username? ", function(name) {
         return rl.question("What's your password? ", function(pass) {
-          var err, x;
-          err = function() {
+          var onError, x;
+          onError = function() {
             console.log('Wrong username and/or password. Or other error.');
             return askUser();
           };
           x = setTimeout((function() {
-            return err();
+            return onError();
           }), 5000);
           return new Magister(userInfo.school, name, pass).ready(function(err) {
             clearTimeout(x);
             if (err) {
-              return err();
+              return onError();
             } else {
               userInfo.username = name;
               userInfo.password = pass;
