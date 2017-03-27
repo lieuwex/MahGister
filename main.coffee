@@ -69,6 +69,7 @@ showHelp = (exit = false) ->
 	console.log repeat '-'
 	console.log cent('MahGister').bold.red
 	console.log cent '(c) 2015 Lieuwe Rooijakkers'
+	console.log cent 'Licensed under the GPLv3 license.'
 	console.log repeat '-'
 
 	for key in _(commands).keys().sort().value()
