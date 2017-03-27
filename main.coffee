@@ -685,15 +685,15 @@ else
 
 	askUser = ->
 		rl.question "What's your username? ", (name) -> rl.question "What's your password? ", (pass) ->
-			err = ->
+			onError = ->
 				console.log 'Wrong username and/or password. Or other error.'
 				askUser()
-			x = setTimeout (-> err()), 5000
+			x = setTimeout (-> onError()), 5000
 
 			new Magister(userInfo.school, name, pass).ready (err) ->
 				clearTimeout x
 
-				if err then err()
+				if err then onError()
 				else
 					userInfo.username = name
 					userInfo.password = pass
